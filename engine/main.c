@@ -126,7 +126,7 @@ main(int argc, char **argv) {
         return 1;
     }
 
-    int version = gladLoadGLES2Loader((GLADloadproc) SDL_GL_GetProcAddress);
+    int version = gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
     SDL_Log("OpenGL version: %d.%d", GLVersion.major, GLVersion.minor);
 
     const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
