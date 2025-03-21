@@ -45,12 +45,20 @@ finalize() {
 }
 
 void
+window_resized(int width, int height) {
+    REPORT(glViewport(0, 0, width, height));
+}
+
+void
 main_loop(void) {
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
         switch(event.type) {
             case SDL_EVENT_QUIT:
                 quit = true;
+                break;
+            case SDL_EVENT_WINDOW_RESIZED:
+                window_resized(event.window.data1, event.window.data2);
                 break;
         }
     }
@@ -114,7 +122,7 @@ main(int argc, char **argv) {
     // Compatibility renderer needed for things like no VAO
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
-    window = SDL_CreateWindow(APP_TITLE, 640, 480, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow(APP_TITLE, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     if(!window) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return 1;
