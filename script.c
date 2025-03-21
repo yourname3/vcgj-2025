@@ -136,9 +136,9 @@ init() {
 
     load_model("blender/test_model_1.glb", &id);
 
-    struct serializer *s = get_stdio_writer("test.skm");
-    write_skm(s, &test_mesh);
-    close_stdio_write(s);
+    //struct serializer *s = get_stdio_writer("test.skm");
+    //write_skm(s, &test_mesh);
+    //close_stdio_write(s);
 
     skm_arm_playback_init(&test_playback, &test_anim);
 
