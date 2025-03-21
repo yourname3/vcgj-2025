@@ -19,19 +19,13 @@ uniform sampler2D u_skeleton;
 uniform float     u_skeleton_count;
 //uniform mat4 u_skeleton[4];
 
-vec4
-downvec(vec4 data) {
-    vec4 size = vec4(16.0);
-    return data * size * 2.0 - size;
-}
-
 mat4
 read_skeleton(float idx) {
     float y = (idx + 0.5) / u_skeleton_count;
-    vec4 col0 = downvec(texture2D(u_skeleton, vec2(0.125, y)));
-    vec4 col1 = downvec(texture2D(u_skeleton, vec2(0.375, y)));
-    vec4 col2 = downvec(texture2D(u_skeleton, vec2(0.625, y)));
-    vec4 col3 = downvec(texture2D(u_skeleton, vec2(0.875, y)));
+    vec4 col0 = texture2D(u_skeleton, vec2(0.125, y));
+    vec4 col1 = texture2D(u_skeleton, vec2(0.375, y));
+    vec4 col2 = texture2D(u_skeleton, vec2(0.625, y));
+    vec4 col3 = texture2D(u_skeleton, vec2(0.875, y));
 
     return mat4(col0, col1, col2, col3);
 }

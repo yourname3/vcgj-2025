@@ -275,16 +275,18 @@ skm_arm_playback_step(struct skm_armature_anim_playback *playback, float step) {
  * Transforms floating point values from a range of [-something, something] to
  * [0, 1] so that we can hand them to the shader through a texture.
  */
-static inline float
-upfloat(float in) {
-    const float size = 16.0;
-    float result = (in + size) / (2.0 * size);
-    if(result < 0 || result > 1) {
-        SDL_Log("uh oh -- upfloat bad: %f", in);
-        exit(0);
-    }
-    return result;
-}
+// static inline float
+// upfloat(float in) {
+//     const float size = 16.0;
+//     float result = (in + size) / (2.0 * size);
+//     if(result < 0 || result > 1) {
+//         SDL_Log("uh oh -- upfloat bad: %f", in);
+//         exit(0);
+//     }
+//     return result;
+// }
+
+#define upfloat(x) x
 /** 
  * Updates the bone_tform_tex_data with the given matrisx. 
  */
@@ -329,7 +331,7 @@ skm_gl_upload_bone_tform(struct skeletal_mesh *skm) {
     // Other option is to try to transform the texture data into the shader.
 
     REPORT(glTexImage2D(GL_TEXTURE_2D, 0,
-        GL_RGBA,
+        GL_RGBA32F,
         // width of 4 px, height of bone count
         4, (GLsizei)skm->bone_count,
         0,
