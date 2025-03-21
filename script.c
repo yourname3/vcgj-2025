@@ -109,7 +109,11 @@ init() {
     const float w = 640;
     const float h = 480;
     setup_proj_mat(w, h);
-    m_matrix[3][2] -= DIST_FROM_CAM;
+    vec3 axis = { 0, 1, 0 };
+    glm_scale(m_matrix, (vec3){ 3.0, 3.0, 3.0 });
+    glm_rotated(m_matrix, -0.4, axis);
+    glm_translated(m_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
+    //m_matrix[3][2] -= DIST_FROM_CAM;
 
     REPORT(glUseProgram(skel_shader));
     glm_mat4_identity(v_matrix);
@@ -137,7 +141,7 @@ init() {
 
     
 
-    load_model("blender/test_model_1.glb", &id);
+    load_model("blender/test_model_2.glb", &id);
 
     //struct serializer *s = get_stdio_writer("test.skm");
     //write_skm(s, &test_mesh);
@@ -197,7 +201,7 @@ tick(double dt) {
     skm_arm_playback_apply(&test_playback);
     skm_compute_matrices(&test_mesh, m_matrix);
     skm_arm_playback_step(&test_playback, dt);
-    if(test_playback.time > 2.0) {
+    if(test_playback.time > 7.83) {
         skm_arm_playback_seek(&test_playback, 0.0);
     }
 
