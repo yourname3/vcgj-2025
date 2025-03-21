@@ -1,0 +1,21 @@
+{
+    "files.associations": {
+        "sdl.h": "c",
+        "sdl_main.h": "c",
+        "cimport.h": "c",
+        "importerdesc.h": "c",
+        "types.h": "c",
+        "glad.h": "c",
+        "cglm.h": "c",
+        "postprocess.h": "c",
+        "affine.h": "c",
+        "euler.h": "c",
+        "sdl_log.h": "c",
+        "scene.h": "c",
+        "cstddef": "c",
+        "string_view": "c",
+        "serialize_skm.h": "c",
+        "skeletal_mesh.h": "c",
+        "serialize.h": "c"
+    }
+}
