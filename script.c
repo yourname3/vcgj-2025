@@ -65,6 +65,8 @@ static GLuint skel_shader = 0;
 // Will eventually be replaced by skeleton stuff.
 static mat4 m_matrix;
 
+static GLuint skeleton_count_loc = 0;
+
 
 static mat4 skeleton_matrix[4];
 
@@ -97,6 +99,7 @@ init() {
     REPORT(vp_loc = glGetUniformLocation(skel_shader, "u_vp"));
     //REPORT(m_loc = glGetUniformLocation(skel_shader, "u_m"));
     REPORT(skeleton_loc = glGetUniformLocation(skel_shader, "u_skeleton"));
+    REPORT(skeleton_count_loc = glGetUniformLocation(skel_shader, "u_skeleton_count"));
 
     //mat4 model_pose;
     glm_mat4_identity(m_matrix);
@@ -144,6 +147,8 @@ init() {
 
     test_mesh.shader = skel_shader;
     skm_gl_init(&test_mesh);
+
+    glUniform1f(skeleton_count_loc, (float)test_mesh.bone_count);
 
     //REPORT(glDisable(GL_DEPTH_TEST));
     //REPORT(glDisable(GL_CULL_FACE));
@@ -203,11 +208,15 @@ tick(double dt) {
         //if(dump) dump_mat("bone pose", test_mesh.bone_pose[i]);
         //if(dump) dump_mat("bone bind", test_mesh.bone_inverse_bind[i]);
         glm_mat4_mul(test_mesh.bone_pose[i], test_mesh.bone_inverse_bind[i], final_transform);
-        glm_mat4_copy(final_transform, skeleton_matrix[i]);
+        //glm_mat4_copy(final_transform, skeleton_matrix[i]);
+
+        skm_set_bone_global_transform(&test_mesh, i, final_transform);
 
         //if(dump) dump_mat("final transform", final_transform);
         
     }
+
+    skm_gl_upload_bone_tform(&test_mesh);
     dump = false;
 
     // glm_mat4_copy(m_matrix, skeleton_matrix[0]);
@@ -215,7 +224,7 @@ tick(double dt) {
     // glm_mat4_copy(m_matrix, skeleton_matrix[2]);
     // glm_mat4_copy(m_matrix, skeleton_matrix[3]);
 
-    glUniformMatrix4fv(skeleton_loc, 4, false, skeleton_matrix[0][0]);
+    //glUniformMatrix4fv(skeleton_loc, 4, false, skeleton_matrix[0][0]);
     //pass_vp();
 
     skm_gl_draw(&test_mesh);

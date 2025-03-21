@@ -31,6 +31,15 @@ skm_gl_init(struct skeletal_mesh *skm) {
     REPORT(glGenBuffers(1, &skm->array_buf));
     REPORT(glGenBuffers(1, &skm->element_buf));
 
+    REPORT(glGenTextures(1, &skm->bone_tform_tex));
+
+    REPORT(glBindTexture(GL_TEXTURE_2D, skm->bone_tform_tex));
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
     skm_gl_upload(skm);
 }
 
@@ -250,4 +259,52 @@ void
 skm_arm_playback_step(struct skm_armature_anim_playback *playback, float step) {
     // TODO: Make this not absurdly inefficient.
     skm_arm_playback_seek(playback, playback->time + step);
+}
+
+/* data layout:
+ * each pixel has four values, which is one column of the matrix.
+ * all coordinates in one mesh are along a row, so each row is 4 pixels.
+ * the number of rows equals the number of bones. */
+
+/** 
+ * Updates the bone_tform_tex_data with the given matrisx. 
+ */
+void
+skm_set_bone_global_transform(struct skeletal_mesh *skm, int index, mat4 tform) {
+    size_t i = (index * 16);
+    // first column of matrix goes in first row, and so forth.
+    skm->bone_tform_tex_data[i + 0] = tform[0][0];
+    skm->bone_tform_tex_data[i + 1] = tform[0][1];
+    skm->bone_tform_tex_data[i + 2] = tform[0][2];
+    skm->bone_tform_tex_data[i + 3] = tform[0][3];
+
+    skm->bone_tform_tex_data[i + 4] = tform[1][0];
+    skm->bone_tform_tex_data[i + 5] = tform[1][1];
+    skm->bone_tform_tex_data[i + 6] = tform[1][2];
+    skm->bone_tform_tex_data[i + 7] = tform[1][3];
+
+    skm->bone_tform_tex_data[i + 8] = tform[2][0];
+    skm->bone_tform_tex_data[i + 9] = tform[2][1];
+    skm->bone_tform_tex_data[i + 10] = tform[2][2];
+    skm->bone_tform_tex_data[i + 11] = tform[2][3];
+
+    skm->bone_tform_tex_data[i + 12] = tform[3][0];
+    skm->bone_tform_tex_data[i + 13] = tform[3][1];
+    skm->bone_tform_tex_data[i + 14] = tform[3][2];
+    skm->bone_tform_tex_data[i + 15] = tform[3][3];
+}
+
+/**
+ * Uploads the current bone_tform_tex_data to opengl.
+ */
+void
+skm_gl_upload_bone_tform(struct skeletal_mesh *skm) {
+    REPORT(glBindTexture(GL_TEXTURE_2D, skm->bone_tform_tex));
+    REPORT(glTexImage2D(GL_TEXTURE_2D, 0,
+        GL_RGBA,
+        // width of 4 px, height of bone count
+        4, (GLsizei)skm->bone_count,
+        0,
+        GL_RGBA, GL_FLOAT,
+        skm->bone_tform_tex_data));
 }

@@ -13,6 +13,9 @@ struct skeletal_mesh {
 
     GLuint shader;
 
+    GLuint bone_tform_tex;
+    float *bone_tform_tex_data;
+
     GLuint array_buf;
     GLuint element_buf;
 
@@ -105,5 +108,15 @@ void skm_arm_playback_apply(struct skm_armature_anim_playback *playback);
 void skm_arm_playback_step(struct skm_armature_anim_playback *playback, float step);
 
 void skm_arm_playback_seek(struct skm_armature_anim_playback *playback, float time);
+
+/** 
+ * Updates the bone_tform_tex_data with the given matrisx. 
+ */
+void skm_set_bone_global_transform(struct skeletal_mesh *skm, int index, mat4 tform);
+
+/**
+ * Uploads the current bone_tform_tex_data to opengl.
+ */
+void skm_gl_upload_bone_tform(struct skeletal_mesh *skm);
 
 #endif

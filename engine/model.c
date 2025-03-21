@@ -222,6 +222,8 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
     output->bone_heirarchy = heirarchy;
     output->bone_count = mesh->mNumBones;
 
+    output->bone_tform_tex_data = eng_zalloc(sizeof(mat4) * mesh->mNumBones);
+
     output->bone_compute_graph = eng_zalloc(sizeof(*output->bone_compute_graph) * mesh->mNumBones);
 
     output->import_key = mesh;
