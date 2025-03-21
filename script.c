@@ -148,7 +148,8 @@ init() {
     test_mesh.shader = skel_shader;
     skm_gl_init(&test_mesh);
 
-    glUniform1f(skeleton_count_loc, (float)test_mesh.bone_count);
+    REPORT(glUniform1f(skeleton_count_loc, (float)test_mesh.bone_count));
+    REPORT(glUniform1i(skeleton_loc, 0));
 
     //REPORT(glDisable(GL_DEPTH_TEST));
     //REPORT(glDisable(GL_CULL_FACE));

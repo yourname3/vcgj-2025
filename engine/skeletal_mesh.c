@@ -80,6 +80,9 @@ skm_gl_draw(struct skeletal_mesh *skm) {
 
     REPORT(glUseProgram(skm->shader));
 
+    REPORT(glActiveTexture(GL_TEXTURE0));
+    REPORT(glBindTexture(GL_TEXTURE_2D, skm->bone_tform_tex));
+
     REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skm->element_buf));
     REPORT(glDrawElements(GL_TRIANGLES, skm->triangles_count, GL_UNSIGNED_INT, 0));
 }
@@ -266,32 +269,49 @@ skm_arm_playback_step(struct skm_armature_anim_playback *playback, float step) {
  * all coordinates in one mesh are along a row, so each row is 4 pixels.
  * the number of rows equals the number of bones. */
 
+
+
+/**
+ * Transforms floating point values from a range of [-something, something] to
+ * [0, 1] so that we can hand them to the shader through a texture.
+ */
+static inline float
+upfloat(float in) {
+    const float size = 16.0;
+    float result = (in + size) / (2.0 * size);
+    if(result < 0 || result > 1) {
+        SDL_Log("uh oh -- upfloat bad: %f", in);
+        exit(0);
+    }
+    return result;
+}
 /** 
  * Updates the bone_tform_tex_data with the given matrisx. 
  */
+
 void
 skm_set_bone_global_transform(struct skeletal_mesh *skm, int index, mat4 tform) {
     size_t i = (index * 16);
     // first column of matrix goes in first row, and so forth.
-    skm->bone_tform_tex_data[i + 0] = tform[0][0];
-    skm->bone_tform_tex_data[i + 1] = tform[0][1];
-    skm->bone_tform_tex_data[i + 2] = tform[0][2];
-    skm->bone_tform_tex_data[i + 3] = tform[0][3];
+    skm->bone_tform_tex_data[i + 0] = upfloat(tform[0][0]);
+    skm->bone_tform_tex_data[i + 1] = upfloat(tform[0][1]);
+    skm->bone_tform_tex_data[i + 2] = upfloat(tform[0][2]);
+    skm->bone_tform_tex_data[i + 3] = upfloat(tform[0][3]);
 
-    skm->bone_tform_tex_data[i + 4] = tform[1][0];
-    skm->bone_tform_tex_data[i + 5] = tform[1][1];
-    skm->bone_tform_tex_data[i + 6] = tform[1][2];
-    skm->bone_tform_tex_data[i + 7] = tform[1][3];
+    skm->bone_tform_tex_data[i + 4] = upfloat(tform[1][0]);
+    skm->bone_tform_tex_data[i + 5] = upfloat(tform[1][1]);
+    skm->bone_tform_tex_data[i + 6] = upfloat(tform[1][2]);
+    skm->bone_tform_tex_data[i + 7] = upfloat(tform[1][3]);
 
-    skm->bone_tform_tex_data[i + 8] = tform[2][0];
-    skm->bone_tform_tex_data[i + 9] = tform[2][1];
-    skm->bone_tform_tex_data[i + 10] = tform[2][2];
-    skm->bone_tform_tex_data[i + 11] = tform[2][3];
+    skm->bone_tform_tex_data[i + 8] = upfloat(tform[2][0]);
+    skm->bone_tform_tex_data[i + 9] = upfloat(tform[2][1]);
+    skm->bone_tform_tex_data[i + 10] = upfloat(tform[2][2]);
+    skm->bone_tform_tex_data[i + 11] = upfloat(tform[2][3]);
 
-    skm->bone_tform_tex_data[i + 12] = tform[3][0];
-    skm->bone_tform_tex_data[i + 13] = tform[3][1];
-    skm->bone_tform_tex_data[i + 14] = tform[3][2];
-    skm->bone_tform_tex_data[i + 15] = tform[3][3];
+    skm->bone_tform_tex_data[i + 12] = upfloat(tform[3][0]);
+    skm->bone_tform_tex_data[i + 13] = upfloat(tform[3][1]);
+    skm->bone_tform_tex_data[i + 14] = upfloat(tform[3][2]);
+    skm->bone_tform_tex_data[i + 15] = upfloat(tform[3][3]);
 }
 
 /**
@@ -300,6 +320,14 @@ skm_set_bone_global_transform(struct skeletal_mesh *skm, int index, mat4 tform) 
 void
 skm_gl_upload_bone_tform(struct skeletal_mesh *skm) {
     REPORT(glBindTexture(GL_TEXTURE_2D, skm->bone_tform_tex));
+
+    // TODO:
+    // It appears WebGL 1 does support RGBA32F.
+    // So we could do something weird like support WebGL 1 and OpenGL 3.something
+    // on desktop, that both used RGBA32F.
+    //
+    // Other option is to try to transform the texture data into the shader.
+
     REPORT(glTexImage2D(GL_TEXTURE_2D, 0,
         GL_RGBA,
         // width of 4 px, height of bone count
@@ -307,4 +335,28 @@ skm_gl_upload_bone_tform(struct skeletal_mesh *skm) {
         0,
         GL_RGBA, GL_FLOAT,
         skm->bone_tform_tex_data));
+
+    // for(int i = 0; i < skm->bone_count * 16;) {
+    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
+    //         skm->bone_tform_tex_data[i + 1],
+    //         skm->bone_tform_tex_data[i + 2],
+    //         skm->bone_tform_tex_data[i + 3]);
+    //     i += 4;
+    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
+    //         skm->bone_tform_tex_data[i + 1],
+    //         skm->bone_tform_tex_data[i + 2],
+    //         skm->bone_tform_tex_data[i + 3]);
+    //     i += 4;
+    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
+    //         skm->bone_tform_tex_data[i + 1],
+    //         skm->bone_tform_tex_data[i + 2],
+    //         skm->bone_tform_tex_data[i + 3]);
+    //     i += 4;
+    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
+    //         skm->bone_tform_tex_data[i + 1],
+    //         skm->bone_tform_tex_data[i + 2],
+    //         skm->bone_tform_tex_data[i + 3]);
+    //     i += 4;
+    // }
+    // exit(0);
 }
