@@ -44,8 +44,10 @@ obj/tool/%.o: %.c | $(addprefix obj/tool/,$(dir $(TOOL_SHADER2C)))
 bin/web/$(GAMENAME).html: $(SRCS:%.c=obj/web/%.o) | bin/web/
 	emcc $^ -o $@ -L../SDL/build-emcc/ -lSDL3
 
-bin/win/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/win/
+bin/win/SDL3.dll: ../SDL/build-win/SDL3.dll
 	cp ../SDL/build-win/SDL3.dll bin/win/
+
+bin/win/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/win/ bin/win/SDL3.dll
 	g++ $^ -o $@ -L../SDL/build-win/ -L../assimp/build-win/lib -lSDL3 -lassimp -lz
 
 obj/win/%.o: %.c | $(addprefix obj/win/,$(dir $(SRCS))) obj/shader.c
