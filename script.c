@@ -65,14 +65,11 @@ init() {
 
     REPORT(p_loc = glGetUniformLocation(skel_shader, "u_p"));
     REPORT(v_loc = glGetUniformLocation(skel_shader, "u_v"));
-    //REPORT(m_loc = glGetUniformLocation(skel_shader, "u_m"));
+
     REPORT(skeleton_loc = glGetUniformLocation(skel_shader, "u_skeleton"));
     REPORT(skeleton_count_loc = glGetUniformLocation(skel_shader, "u_skeleton_count"));
 
-    //mat4 model_pose;
     glm_mat4_identity(m_matrix);
-   // 
-    
 
     const float w = 640;
     const float h = 480;
@@ -81,17 +78,10 @@ init() {
     glm_scale(m_matrix, (vec3){ 3.0, 3.0, 3.0 });
     glm_rotated(m_matrix, -0.4, axis);
     glm_translated(m_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
-    //m_matrix[3][2] -= DIST_FROM_CAM;
 
     REPORT(glUseProgram(skel_shader));
     glm_mat4_identity(v_matrix);
     pass_vp();
-    //glUniformMatrix4fv(m_loc, 1, false, m_matrix[0]);
-    //glm_ortho(-w / 2.0, w / 2.0, -h / 2.0, h / 2.0, -4096.0, 4096.0, vp_matrix);
-
-
-
-    //skm_init(&test_mesh, vertices, 12, triangles, 6, shader);
 
     struct skeletal_mesh *wanted_meshes[] = { &test_mesh };
 
@@ -107,13 +97,7 @@ init() {
         .got_skm_arm_anim = 0,
     };
 
-    
-
-    load_model("blender/test_model_2.glb", &id);
-
-    //struct serializer *s = get_stdio_writer("test.skm");
-    //write_skm(s, &test_mesh);
-    //close_stdio_write(s);
+    load_model("blender/player.glb", &id);
 
     skm_arm_playback_init(&test_playback, &test_anim);
 
@@ -122,9 +106,6 @@ init() {
 
     REPORT(glUniform1f(skeleton_count_loc, (float)test_mesh.bone_count));
     REPORT(glUniform1i(skeleton_loc, 0));
-
-    //REPORT(glDisable(GL_DEPTH_TEST));
-    //REPORT(glDisable(GL_CULL_FACE));
 
     SDL_Log("init called.");
 }
@@ -152,25 +133,11 @@ janky_rotate(mat4 pose, float amount, vec3 axis) {
 
 void
 tick(double dt) {
-    
-    // vec3 back = { 0.0, 0.0, DIST_FROM_CAM };
-    // vec3 forth = { 0.0, 0.0, -DIST_FROM_CAM };
-    // glm_translated(m_matrix, back);
-    // vec3 up = { 0.0, 1.0, 0.0 };
-    // glm_rotated(m_matrix, 0.00003f, up);
-    // glm_translated(m_matrix, forth);
-
-   // vec3 weird = { 0.0, 0.0, 1.0 };
-   // janky_rotate(test_mesh.bone_local_pose[1], 0.00003f, weird);
-    //janky_rotate(test_mesh.bone_local_pose[2], 0.00003f, weird);
-
-    //janky_rotate(test_mesh.bone_local_pose[1], 0.00003f, test_mesh.bone_local_pose[1][2]);
-
     skm_arm_playback_apply(&test_playback);
     skm_compute_matrices(&test_mesh, m_matrix);
     skm_arm_playback_step(&test_playback, dt);
-    if(test_playback.time > 7.83) {
-        skm_arm_playback_seek(&test_playback, 0.0);
+    if(test_playback.time >= 1.25) {
+        skm_arm_playback_seek(&test_playback, test_playback.time - 1.25);
     }
 
     // The world-space position of each bone should be something like:
@@ -184,21 +151,10 @@ tick(double dt) {
         //glm_mat4_copy(final_transform, skeleton_matrix[i]);
 
         skm_set_bone_global_transform(&test_mesh, i, final_transform);
-
-        //if(dump) dump_mat("final transform", final_transform);
         
     }
 
     skm_gl_upload_bone_tform(&test_mesh);
-    dump = false;
-
-    // glm_mat4_copy(m_matrix, skeleton_matrix[0]);
-    // glm_mat4_copy(m_matrix, skeleton_matrix[1]);
-    // glm_mat4_copy(m_matrix, skeleton_matrix[2]);
-    // glm_mat4_copy(m_matrix, skeleton_matrix[3]);
-
-    //glUniformMatrix4fv(skeleton_loc, 4, false, skeleton_matrix[0][0]);
-    //pass_vp();
 
     skm_gl_draw(&test_mesh);
 }
