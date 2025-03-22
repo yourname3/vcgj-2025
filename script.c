@@ -27,21 +27,24 @@ struct skeletal_mesh hay_mesh = {0};
 // for the shader versus the last stored state, and update everything that needed
 // updating.
 
-static GLuint v_loc = 0;
-static GLuint p_loc = 0;
-//static GLuint m_loc = 0;
-static GLuint skeleton_loc = 0;
-static GLuint skel_shader = 0;
+struct {
+    GLuint v; // view matrix
+    GLuint p; // projection matrix
+    GLuint skeleton; // skeleton texture bind
+    GLuint skeleton_count; // skeleton bone count (float)
 
-// Will eventually be replaced by skeleton stuff.
-static mat4 m_matrix;
+    GLuint self; // the shader program
+} skel_pbr;
 
-static GLuint skeleton_count_loc = 0;
-
-// view projection matrix
+// projection matrix
 static mat4 p_matrix;
 
+// view matrix
 static mat4 v_matrix;
+
+struct {
+    mat4 model_matrix;
+} player;
 
 void
 setup_proj_mat(float window_w, float window_h) {
@@ -52,8 +55,10 @@ setup_proj_mat(float window_w, float window_h) {
 
 void
 pass_vp() {
-    REPORT(glUniformMatrix4fv(p_loc, 1, false, p_matrix[0]));
-    REPORT(glUniformMatrix4fv(v_loc, 1, false, v_matrix[0]));
+    // Update the projection/view in the skel_pbr
+    REPORT(glUseProgram(skel_pbr.self));
+    REPORT(glUniformMatrix4fv(skel_pbr.p, 1, false, p_matrix[0]));
+    REPORT(glUniformMatrix4fv(skel_pbr.v, 1, false, v_matrix[0]));
 }
 
 void
@@ -66,21 +71,19 @@ window_resized_hook(int width, int height) {
 
 void
 init() {
-    skel_shader = ourgl_compile_shader(skel_vert_src, skel_frag_src);
+    skel_pbr.self = ourgl_compile_shader(skel_vert_src, skel_frag_src);
 
-    REPORT(p_loc = glGetUniformLocation(skel_shader, "u_p"));
-    REPORT(v_loc = glGetUniformLocation(skel_shader, "u_v"));
+    REPORT(skel_pbr.p = glGetUniformLocation(skel_pbr.self, "u_p"));
+    REPORT(skel_pbr.v = glGetUniformLocation(skel_pbr.self, "u_v"));
 
-    REPORT(skeleton_loc = glGetUniformLocation(skel_shader, "u_skeleton"));
-    REPORT(skeleton_count_loc = glGetUniformLocation(skel_shader, "u_skeleton_count"));
-
-    glm_mat4_identity(m_matrix);
+    REPORT(skel_pbr.skeleton = glGetUniformLocation(skel_pbr.self, "u_skeleton"));
+    REPORT(skel_pbr.skeleton_count = glGetUniformLocation(skel_pbr.self, "u_skeleton_count"));
 
     const float w = 640;
     const float h = 480;
     setup_proj_mat(w, h);
 
-    REPORT(glUseProgram(skel_shader));
+    REPORT(glUseProgram(skel_pbr.self));
     glm_mat4_identity(v_matrix);
     glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
     glm_translated(v_matrix, (vec3){ 0.0, 0.0, -8.0 });
@@ -111,11 +114,11 @@ init() {
 
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
 
-    player_mesh.shader = skel_shader;
+    player_mesh.shader = skel_pbr.self;
     skm_gl_init(&player_mesh);
 
-    REPORT(glUniform1f(skeleton_count_loc, (float)player_mesh.bone_count));
-    REPORT(glUniform1i(skeleton_loc, 0));
+    REPORT(glUniform1f(skel_pbr.skeleton_count, (float)player_mesh.bone_count));
+    REPORT(glUniform1i(skel_pbr.skeleton, 0));
 
     SDL_Log("init called.");
 }
@@ -138,9 +141,17 @@ janky_rotate(mat4 pose, float amount, vec3 axis) {
 }
 
 void
+tick_player(double dt) {
+    // Reset the player's matrix.
+    glm_mat4_identity(player.model_matrix);
+}
+
+void
 tick(double dt) {
+    tick_player(dt);
+
     skm_arm_playback_apply(&player_walk_playback);
-    skm_compute_matrices(&player_mesh, m_matrix);
+    skm_compute_matrices(&player_mesh, player.model_matrix);
     skm_arm_playback_step(&player_walk_playback, dt);
     if(player_walk_playback.time >= 1.25) {
         skm_arm_playback_seek(&player_walk_playback, player_walk_playback.time - 1.25);
