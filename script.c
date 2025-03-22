@@ -78,13 +78,16 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     
     GLuint tri_base = *vertptr;
 
-    // SDL_Log("copy a mesh to %d %d", x, y);
+    SDL_Log("copy a mesh to %d %d", x, y);
+
+    float off_x = x * 2;
+    float off_y = y * 2;
 
     for(size_t i = 0; i < vert_data_count; ++i) {
         size_t i6 = *vertptr;
         size_t i14 = i * 14;
-        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + x * 2;
-        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + y * 2;
+        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + off_x;
+        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + off_y;
         verts[i6 + 2] = hay_mesh.vertices[i14 + 2];
         verts[i6 + 3] = hay_mesh.vertices[i14 + 3];
         verts[i6 + 4] = hay_mesh.vertices[i14 + 4];
