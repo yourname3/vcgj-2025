@@ -126,24 +126,28 @@ gen_level_mesh(struct map *map) {
 
     SDL_Log("vertdc: %llu, tridc: %llu", vert_data_count, tri_data_count);
 
+    #define HACK 6 // for some reason, this works????????????
+
     // Fow now, just clone the vertex data for every vertex. We could try to 
     // find a way to only have one copy of normals.
-    size_t verts_size = sizeof(float) * 6 * hay_count * vert_data_count;
+    size_t verts_size = sizeof(float) * 6 * hay_count * vert_data_count * HACK;
     float *verts = eng_zalloc(verts_size);
-    size_t tris_size = sizeof(GLuint) * 3 * hay_count * tri_data_count;
+    size_t tris_size = sizeof(GLuint) * 3 * hay_count * tri_data_count * HACK;
     GLuint *tris = eng_zalloc(tris_size);
 
     GLuint vertptr = 0;
     GLuint triptr = 0;
 
-    level_mesh.triangle_count = hay_count * tri_data_count * 3;
+    level_mesh.triangle_count = hay_count * tri_data_count * 3 * HACK;
+
+    #undef HACK
 
     SDL_Log("level_mesh.triangle_count = %llu", level_mesh.triangle_count);
 
     for(int x = 0; x < map->width; ++x) {
         for(int y = 0; y < map->height; ++y) {
             if(map_get(map, x, y) == CELL_HAY) {
-                copy_hay_mesh(verts, tris, &vertptr, &triptr, vert_data_count,
+                for(int hack = 0; hack < 6; ++hack) copy_hay_mesh(verts, tris, &vertptr, &triptr, vert_data_count,
                     tri_data_count, x, y);
             }
         }
