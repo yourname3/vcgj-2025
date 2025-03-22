@@ -36,6 +36,10 @@ struct {
     GLuint skeleton; // skeleton texture bind
     GLuint skeleton_count; // skeleton bone count (float)
 
+    GLuint base_color;
+    GLuint metallic;
+    GLuint perceptual_roughness;
+
     GLuint self; // the shader program
 } skel_pbr;
 
@@ -53,6 +57,10 @@ struct {
     GLuint v;
     GLuint p;
     GLuint m;
+
+    GLuint base_color;
+    GLuint metallic;
+    GLuint perceptual_roughness;
 
     GLuint self;
 } static_pbr;
@@ -185,14 +193,17 @@ window_resized_hook(int width, int height) {
     pass_vp();
 }
 
-#define DIST_FROM_CAM 16
+#define DIST_FROM_CAM 8
 
 void
 init() {
-    static_pbr.self = ourgl_compile_shader(static_vert_src, static_frag_src);
+    static_pbr.self = ourgl_compile_shader(static_vert_src, skel_frag_src);
     REPORT(static_pbr.p = glGetUniformLocation(static_pbr.self, "u_p"));
     REPORT(static_pbr.v = glGetUniformLocation(static_pbr.self, "u_v"));
     REPORT(static_pbr.m = glGetUniformLocation(static_pbr.self, "u_m"));
+    REPORT(static_pbr.metallic = glGetUniformLocation(static_pbr.self, "metallic"));
+    REPORT(static_pbr.perceptual_roughness = glGetUniformLocation(static_pbr.self, "perceptual_roughness"));
+    REPORT(static_pbr.base_color = glGetUniformLocation(static_pbr.self, "base_color"));
 
     skel_pbr.self = ourgl_compile_shader(skel_vert_src, skel_frag_src);
 
@@ -202,10 +213,13 @@ init() {
     REPORT(skel_pbr.skeleton = glGetUniformLocation(skel_pbr.self, "u_skeleton"));
     REPORT(skel_pbr.skeleton_count = glGetUniformLocation(skel_pbr.self, "u_skeleton_count"));
 
+    REPORT(skel_pbr.metallic = glGetUniformLocation(skel_pbr.self, "metallic"));
+    REPORT(skel_pbr.perceptual_roughness = glGetUniformLocation(skel_pbr.self, "perceptual_roughness"));
+    REPORT(skel_pbr.base_color = glGetUniformLocation(skel_pbr.self, "base_color"));
+
     const float w = 640;
     const float h = 480;
     setup_proj_mat(w, h);
-
 
     mat4 level_tform;
     glm_mat4_identity(level_tform);
@@ -218,9 +232,6 @@ init() {
     glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
     glm_translated(v_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
     pass_vp();
-
-    
-
 
     struct import_data player_id = {
         .skm = (struct skeletal_mesh*[]){ &player_mesh },
@@ -281,6 +292,18 @@ void
 tick_player(double dt) {
     // Reset the player's matrix.
     glm_mat4_identity(player.model_matrix);
+    glm_translated(player.model_matrix, (vec3){ 4.0, 2.0, 0.0 });
+
+    // Set up camera.
+    glm_mat4_identity(v_matrix);
+    // Negative player translation..
+    // Invert translation.
+    glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
+    glm_translated(v_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
+    // focus on player
+    glm_translated(v_matrix, (vec3){ -4.0, -2.0, 0.0 });
+    
+    pass_vp();
 }
 
 void
@@ -311,6 +334,10 @@ tick(double dt) {
 
 void
 render() {
+    REPORT(glUseProgram(skel_pbr.self));
+    glUniform1f(skel_pbr.metallic, 0.2);
+    glUniform1f(skel_pbr.perceptual_roughness, 0.3);
+    glUniform3f(skel_pbr.base_color, 0.5, 0.2, 0.8);
     skm_gl_draw(&player_mesh);
 
     REPORT(glBindBuffer(GL_ARRAY_BUFFER, level_mesh.array_buf));
@@ -325,6 +352,9 @@ render() {
     //SDL_Log("level mesh tri count: %u\n", level_mesh.triangle_count);
 
     REPORT(glUseProgram(static_pbr.self));
+    glUniform1f(static_pbr.metallic, 0.0);
+    glUniform1f(static_pbr.perceptual_roughness, 0.95);
+    glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);
 
     REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
 }

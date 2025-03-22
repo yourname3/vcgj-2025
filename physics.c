@@ -6,6 +6,8 @@ map_get(struct map *map, int32_t x, int32_t y) {
     if(x < 0 || y < 0) return CELL_EMPTY;
     if(x >= map->width || y >= map->height) return CELL_EMPTY;
 
+    y = map->height - y - 1;
+
     return map->data[y * map->width + x];
 }
 
@@ -13,6 +15,8 @@ void
 map_set(struct map *map, int32_t x, int32_t y, uint8_t value) {
     if(x < 0 || y < 0) return;
     if(x >= map->width || y >= map->height) return;
+
+    y = map->height - y - 1;
 
     map->data[y * map->width + x] = value;
 }
@@ -35,11 +39,11 @@ map_set(struct map *map, int32_t x, int32_t y, uint8_t value) {
 // we iterate through the map. So 5/6th blocks are just rejected.
 
 uint8_t map0_data[] = {
-    1, 1, 1, 0, 1, 1, 1, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
+    1, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 0, 0, 0, 0, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1,
 };
 
 struct map map0 = {

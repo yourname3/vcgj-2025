@@ -5,6 +5,10 @@ precision highp float;
 varying vec3 v_norm;
 varying vec3 v_pos;
 
+uniform vec3 base_color;
+uniform float perceptual_roughness;
+uniform float metallic;
+
 #define PI 3.1415926538
 
 float
@@ -61,7 +65,7 @@ brdf_envmap(vec3 diffuse_color, vec3 f0, float roughness, vec3 n, vec3 l, vec3 v
     //vec3 sampled_Il = textureLod(environment_map, l, (max_level - 1) * pow(roughness, 0.125)).rgb;
 
     // Otherwise, just do constant color.
-    vec3 sampled_Id = vec3(0.3, 0.5, 0.9) * 0.5;
+    vec3 sampled_Id = vec3(0.5); //vec3(0.3, 0.5, 0.9) * 0.5;
     vec3 sampled_Il = sampled_Id;
 
     // Initialize Fd to 0 in case we do the sum
@@ -93,12 +97,7 @@ brdf_envmap(vec3 diffuse_color, vec3 f0, float roughness, vec3 n, vec3 l, vec3 v
 void main() {
     vec3 normal = normalize(v_norm);
 
-    float metallic = 0.0;
-    float perceptual_roughness = 0.8;
-
     float reflectance = 0.5;
-
-    vec3 base_color = vec3(0.8, 0.1, 0.9);
     
     vec3 diffuse_color = (1.0 - metallic) * base_color;
     vec3 f0 = 0.16 * reflectance * reflectance * (1.0 - metallic) + base_color * metallic;
