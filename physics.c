@@ -42,5 +42,8 @@ struct map map0 = {
     .width = 8,
     .height = 5,
 
+    .player_x = 5,
+    .player_y = 3, // Assuming we flip the coords..?
+
     .data = map0_data
 };

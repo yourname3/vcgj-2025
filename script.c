@@ -46,6 +46,17 @@ struct {
     mat4 model_matrix;
 } player;
 
+struct {
+    GLuint self;
+} static_pbr;
+
+struct {
+    GLuint array_buf;
+    GLuint element_buf;
+
+    GLuint shader;
+} level_mesh;
+
 void
 setup_proj_mat(float window_w, float window_h) {
     // Eventually, we will want all sorts of nonsense, but for now, let's create

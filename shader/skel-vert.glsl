@@ -21,7 +21,6 @@ uniform mat4 u_p;
 // Bone matrices.
 uniform sampler2D u_skeleton;
 uniform float     u_skeleton_count;
-//uniform mat4 u_skeleton[4];
 
 mat4
 read_skeleton(float idx) {
