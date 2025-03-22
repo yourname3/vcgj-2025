@@ -9,9 +9,11 @@
 
 #include <cglm/cglm.h>
 
-struct skeletal_mesh test_mesh = {0};
-struct skm_armature_anim test_anim = {0};
-struct skm_armature_anim_playback test_playback = {0};
+struct skeletal_mesh player_mesh = {0};
+struct skm_armature_anim player_walk_anim = {0};
+struct skm_armature_anim_playback player_walk_playback = {0};
+
+struct skeletal_mesh hay_mesh = {0};
 
 // Notes to self:
 // Uniforms maintain their values per-shader even after we bind a different shader.
@@ -88,23 +90,34 @@ init() {
     pass_vp();
 
     struct import_data player_id = {
-        .skm = (struct skeletal_mesh*[]){ &test_mesh },
+        .skm = (struct skeletal_mesh*[]){ &player_mesh },
         .num_skm = 1,
         .got_skm = 0,
 
-        .skm_arm_anim = (struct skm_armature_anim*[]){ &test_anim },
+        .skm_arm_anim = (struct skm_armature_anim*[]){ &player_walk_anim },
         .num_skm_arm_anim = 1,
         .got_skm_arm_anim = 0,
     };
 
+    struct import_data hay_id = {
+        .skm = (struct skeletal_mesh*[]){ &hay_mesh },
+        .num_skm = 1,
+        .got_skm = 0,
+
+        .skm_arm_anim = NULL,
+        .num_skm_arm_anim = 0,
+        .got_skm_arm_anim = 0,
+    };
+
     load_model("blender/player.glb", &player_id);
+    load_model("blender/hay.glb", &hay_id);
 
-    skm_arm_playback_init(&test_playback, &test_anim);
+    skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
 
-    test_mesh.shader = skel_shader;
-    skm_gl_init(&test_mesh);
+    player_mesh.shader = skel_shader;
+    skm_gl_init(&player_mesh);
 
-    REPORT(glUniform1f(skeleton_count_loc, (float)test_mesh.bone_count));
+    REPORT(glUniform1f(skeleton_count_loc, (float)player_mesh.bone_count));
     REPORT(glUniform1i(skeleton_loc, 0));
 
     SDL_Log("init called.");
@@ -133,32 +146,29 @@ janky_rotate(mat4 pose, float amount, vec3 axis) {
 
 void
 tick(double dt) {
-    skm_arm_playback_apply(&test_playback);
-    skm_compute_matrices(&test_mesh, m_matrix);
-    skm_arm_playback_step(&test_playback, dt);
-    if(test_playback.time >= 1.25) {
-        skm_arm_playback_seek(&test_playback, test_playback.time - 1.25);
+    skm_arm_playback_apply(&player_walk_playback);
+    skm_compute_matrices(&player_mesh, m_matrix);
+    skm_arm_playback_step(&player_walk_playback, dt);
+    if(player_walk_playback.time >= 1.25) {
+        skm_arm_playback_seek(&player_walk_playback, player_walk_playback.time - 1.25);
     }
 
     // The world-space position of each bone should be something like:
     // model matrix * bone matrix * inverse bind matrix * position
 
-    for(int i = 0; i < test_mesh.bone_count; ++i) {
+    for(int i = 0; i < player_mesh.bone_count; ++i) {
         mat4 final_transform;
-        //if(dump) dump_mat("bone pose", test_mesh.bone_pose[i]);
-        //if(dump) dump_mat("bone bind", test_mesh.bone_inverse_bind[i]);
-        glm_mat4_mul(test_mesh.bone_pose[i], test_mesh.bone_inverse_bind[i], final_transform);
-        //glm_mat4_copy(final_transform, skeleton_matrix[i]);
 
-        skm_set_bone_global_transform(&test_mesh, i, final_transform);
+        glm_mat4_mul(player_mesh.bone_pose[i], player_mesh.bone_inverse_bind[i], final_transform);
+
+        skm_set_bone_global_transform(&player_mesh, i, final_transform);
         
     }
 
-    skm_gl_upload_bone_tform(&test_mesh);
+    skm_gl_upload_bone_tform(&player_mesh);
 }
 
 void
 render() {
-    
-    skm_gl_draw(&test_mesh);
+    skm_gl_draw(&player_mesh);
 }
