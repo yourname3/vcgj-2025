@@ -79,6 +79,7 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     GLuint tri_base = *vertptr;
 
     SDL_Log("copy a mesh to %d %d -> tribase = %lu", x, y, tri_base);
+    SDL_Log("triptr = %lu", *triptr);
 
     float off_x = x * 2;
     float off_y = y * 2;
@@ -137,6 +138,8 @@ gen_level_mesh(struct map *map) {
 
     level_mesh.triangle_count = hay_count * tri_data_count * 3;
 
+    SDL_Log("level_mesh.triangle_count = %llu", level_mesh.triangle_count);
+
     for(int x = 0; x < map->width; ++x) {
         for(int y = 0; y < map->height; ++y) {
             if(map_get(map, x, y) == CELL_HAY) {
@@ -180,7 +183,7 @@ window_resized_hook(int width, int height) {
     pass_vp();
 }
 
-#define DIST_FROM_CAM 32
+#define DIST_FROM_CAM 16
 
 void
 init() {
