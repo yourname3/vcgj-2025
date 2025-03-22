@@ -93,6 +93,12 @@ nudge() {
     return (x - 0.5) / 1000.0;
 }
 
+float
+rand_angle() {
+    int x = rand() % 4;
+    return x * 6.28 * 0.25;
+}
+
 void
 copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_t vert_data_count,
         size_t tri_data_count, int x, int y) {
@@ -112,15 +118,43 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     // have different normals?) by the same amount, we can't do the nugding. but
     // we can nudge entire cubes.
 
+    mat4 cube_tform;
+    glm_rotate_make(cube_tform, rand_angle(), (vec3){ 0, 0, 1 });
+    glm_rotated(cube_tform, rand_angle() + nudge() * 250, (vec3){ 0, 1, 0 });
+    glm_translated(cube_tform, (vec3){ off_x, off_y, off_z });
+
+    mat4 normal_mat;
+    glm_mat4_copy(cube_tform, normal_mat);
+    glm_mat4_transpose(normal_mat);
+    glm_mat4_inv(normal_mat, normal_mat);
+
     for(size_t i = 0; i < vert_data_count; ++i) {
         size_t i6 = *vertptr;
         size_t i14 = i * 14;
-        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + off_x;
-        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + off_y;
-        verts[i6 + 2] = hay_mesh.vertices[i14 + 2] + off_z;
-        verts[i6 + 3] = hay_mesh.vertices[i14 + 3];
-        verts[i6 + 4] = hay_mesh.vertices[i14 + 4];
-        verts[i6 + 5] = hay_mesh.vertices[i14 + 5];
+
+        vec4 pos = {
+            hay_mesh.vertices[i14 + 0],
+            hay_mesh.vertices[i14 + 1],
+            hay_mesh.vertices[i14 + 2],
+            1.0
+        };
+
+        vec4 norm = {
+            hay_mesh.vertices[i14 + 3],
+            hay_mesh.vertices[i14 + 4],
+            hay_mesh.vertices[i14 + 5],
+            0.0
+        };
+
+        glm_mat4_mulv(cube_tform, pos, pos);
+        glm_mat4_mulv(normal_mat, norm, norm);
+
+        verts[i6 + 0] = pos[0];
+        verts[i6 + 1] = pos[1];
+        verts[i6 + 2] = pos[2];
+        verts[i6 + 3] = norm[0];
+        verts[i6 + 4] = norm[1];
+        verts[i6 + 5] = norm[2];
 
         *vertptr += 6;
     }
