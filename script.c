@@ -78,7 +78,7 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     
     GLuint tri_base = *vertptr;
 
-    SDL_Log("copy a mesh to %d %d", x, y);
+    // SDL_Log("copy a mesh to %d %d", x, y);
 
     for(size_t i = 0; i < vert_data_count; ++i) {
         size_t i6 = *vertptr;
