@@ -16,6 +16,7 @@
         "string_view": "c",
         "serialize_skm.h": "c",
         "skeletal_mesh.h": "c",
-        "serialize.h": "c"
+        "serialize.h": "c",
+        "stdlib.h": "c"
     }
 }

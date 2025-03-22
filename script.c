@@ -87,21 +87,17 @@ init() {
     glm_translated(v_matrix, (vec3){ 0.0, 0.0, -8.0 });
     pass_vp();
 
-    struct skeletal_mesh *wanted_meshes[] = { &test_mesh };
-
-    struct skm_armature_anim *wanted_anim[] = { &test_anim };
-
-    struct import_data id = {
-        .skm = wanted_meshes,
+    struct import_data player_id = {
+        .skm = (struct skeletal_mesh*[]){ &test_mesh },
         .num_skm = 1,
         .got_skm = 0,
 
-        .skm_arm_anim = wanted_anim,
+        .skm_arm_anim = (struct skm_armature_anim*[]){ &test_anim },
         .num_skm_arm_anim = 1,
         .got_skm_arm_anim = 0,
     };
 
-    load_model("blender/player.glb", &id);
+    load_model("blender/player.glb", &player_id);
 
     skm_arm_playback_init(&test_playback, &test_anim);
 
