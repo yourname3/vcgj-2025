@@ -172,7 +172,8 @@ void
 setup_proj_mat(float window_w, float window_h) {
     // Eventually, we will want all sorts of nonsense, but for now, let's create
     // a simple perspective matrix..?
-    glm_perspective(90.0f, window_w / window_h, 0.01f, 100.0f, p_matrix);
+    // 22 = human eyesight ish?
+    glm_perspective(70.0f, window_w / window_h, 0.01f, 100.0f, p_matrix);
 }
 
 void
