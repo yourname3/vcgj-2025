@@ -14,6 +14,7 @@ __attribute__((dllexport)) uint32_t NvOptimusEnablement = 0x00000001;
 
 extern void init();
 extern void tick(double dt);
+extern void render();
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -28,6 +29,10 @@ uint64_t ticks = 0;
 uint64_t ticks_window[TICKS_WINDOW_SIZE] = { 0 };
 uint64_t ticks_sum = 0;
 size_t   ticks_window_ptr = 0;
+
+// This time is added as we move farther into the game. We subtract from it
+// when we tick.
+int64_t time_in_future = 0;
 
 void
 ticks_push(uint64_t value) {
@@ -51,8 +56,6 @@ window_resized(int width, int height) {
     REPORT(glViewport(0, 0, width, height));
     window_resized_hook(width, height);
 }
-
-
 
 void
 main_loop(void) {
@@ -79,33 +82,33 @@ main_loop(void) {
     glClearColor(0.1, 0.8, 0.8, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    uint64_t dt_estimate = ticks_sum / TICKS_WINDOW_SIZE;
-    //if(dt_estimate < 1) { dt_estimate = 1; }
-    //if(dt_estimate < 200000) {
-    //    dt_estimate = 200000; // cap at 5000 fps for now. this will be different when we whatever.
-    //}
+    //uint64_t dt_estimate = ticks_sum / TICKS_WINDOW_SIZE;
 
-    double dt = (double)dt_estimate / (double)SDL_GetPerformanceFrequency();
-    if(rand() % 256 == 0) SDL_Log("estimated fps: %f", 1.0 / dt);
+    //double dt = (double)dt_estimate / (double)SDL_GetPerformanceFrequency();
+    //if(rand() % 256 == 0) SDL_Log("estimated fps: %f", 1.0 / dt);
 
-    // weird
-    dt = 1.0 / 240.0;
+    double dt_wanted = 1.0 / 60.0;
+    int64_t step = (int64_t)(dt_wanted * (double)SDL_GetPerformanceFrequency());
 
-    tick(dt);
+    if(time_in_future > step * 8) {
+        time_in_future = step * 8;
+    }
 
+    while(time_in_future > step) {
+        tick(dt_wanted);
+        time_in_future -= step;
+    }
+
+    render();
     SDL_GL_SwapWindow(window);
 
     uint64_t next_ticks = SDL_GetPerformanceCounter();
-    //SDL_Log("next ticks = %llu\n", next_ticks);
     uint64_t delta = next_ticks - ticks;
-    //double delta_sec = ((double)delta) / 1000000000.0;
-    //double fps = 1.0 / delta_sec;
     ticks = next_ticks;
 
-    ticks_push(delta);
-    //SDL_Log("delta = %f sec\n", (double)delta / (double)SDL_GetPerformanceFrequency());
+    time_in_future += (int64_t)delta;
 
-    //SDL_Log("frame took %lu ns = %f sec, %f FPS", delta, delta_sec, fps);
+    ticks_push(delta);
 }
 
 #define APP_TITLE "app title"

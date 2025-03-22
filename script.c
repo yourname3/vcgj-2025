@@ -159,6 +159,10 @@ tick(double dt) {
     }
 
     skm_gl_upload_bone_tform(&test_mesh);
+}
 
+void
+render() {
+    
     skm_gl_draw(&test_mesh);
 }
