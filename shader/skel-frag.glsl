@@ -32,7 +32,7 @@ V_SmithGGXCorrelated(float NoV, float NoL, float a) {
 }
 
 vec3
-brdf_attenuated(vec3 diffuse_color, vec3 f0, float roughness, vec3 n, vec3 l) {
+brdf_attenuated(vec3 diffuse_color, vec3 f0, float roughness, vec3 n, vec3 l, vec3 v) {
     vec3 h = normalize(v + l);
     float NoV = abs(dot(n, v)) + 1e-5;
     float NoL = clamp(dot(n, l), 0.0, 1.0);
@@ -40,7 +40,7 @@ brdf_attenuated(vec3 diffuse_color, vec3 f0, float roughness, vec3 n, vec3 l) {
     float LoH = clamp(dot(l, h), 0.0, 1.0);
 
     float D = D_GGX(NoH, roughness);
-    float F = F_Schlick(LoH, f0);
+    vec3 F = F_Schlick(LoH, f0);
     float V = V_SmithGGXCorrelated(NoV, NoL, roughness);
 
     vec3 Fd = diffuse_color * Fd_Lambert();
@@ -53,7 +53,7 @@ void main() {
     vec3 normal = normalize(v_norm);
 
     float metallic = 0.0;
-    float perceptual_roughness = 1.0;
+    float perceptual_roughness = 0.3;
 
     float reflectance = 0.5;
 
@@ -65,14 +65,16 @@ void main() {
 
     vec3 sum = vec3(0.0);
 
-    vec3 light_direction = vec3(-1.0);
+    vec3 light_direction = vec3(0, -1, -1);
+    vec3 v = -normalize(v_pos);
 
     sum = brdf_attenuated(
         diffuse_color,
         f0,
         roughness,
         normal,
-        -normalize(light_direction)
+        -normalize(light_direction),
+        v_pos
     );
 
     gl_FragColor = vec4(clamp(sum, 0.0, 1.0), 1.0);
