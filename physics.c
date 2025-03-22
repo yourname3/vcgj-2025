@@ -175,7 +175,7 @@ map_get_overlap(struct map *map, struct phys_obj *obj) {
 }
 
 struct overlap
-phys_has_any_overlap(struct obj *obj) {
+phys_has_any_overlap(struct phys_obj *obj) {
     return map_get_overlap(cur_map, obj);
 }
 
@@ -190,12 +190,12 @@ phys_solve_motion_iterative(struct phys_obj *obj, vec2 motion, float margin) {
     int iterations = 0;
     const int max_iterations = 80;
 
-    while(glm_vec2_norm2(step) > margin && glm_vec2_norrm2(motion_remain) > margin) {
+    while(glm_vec2_norm2(step) > margin && glm_vec2_norm2(motion_remain) > margin) {
         vec2 last_pos;
         glm_vec2_copy(obj->pos, last_pos);
         glm_vec2_add(obj->pos, step, obj->pos);
 
-        overlap = phys_has_any_overlap();
+        overlap = phys_has_any_overlap(obj);
         if(overlap.is_overlap) {
             // retry with smaller step
             glm_vec2_scale(step, 0.5, step);
@@ -214,7 +214,7 @@ phys_solve_motion_iterative(struct phys_obj *obj, vec2 motion, float margin) {
 
 void
 vec2_project(vec2 a, vec2 b, vec2 out) {
-    float scale = glm_dot(a, b) / glm_dot(b, b);
+    float scale = glm_vec2_dot(a, b) / glm_vec2_dot(b, b);
     glm_vec2_scale(b, scale, out);
 }
 
@@ -225,7 +225,6 @@ phys_slide_motion_solver(vec2 vel, vec2 vel_out, struct phys_obj *obj, float mar
     vec2 total_vel;
     glm_vec2_scale(vel, dt, total_vel);
 
-    vec2 vel_out;
     glm_vec2_copy(vel, vel_out);
 
     obj->on_floor = false;
