@@ -80,6 +80,21 @@ init_level_gl() {
     REPORT(glGenBuffers(1, &level_mesh.element_buf));
 }
 
+// used to make the hay look slightly more interesting.
+float
+nudge() {
+    return 0;
+
+    // PROBLEM: Our mesh import apparently splits the vertices.
+    // If we can fix this, then we can do this.
+
+    // this is very bad, but it's ok.
+    float x = (float)rand() / (float)RAND_MAX;
+
+    // up to 5 thousandths in any direction.
+    return (x - 0.5) / 1000.0;
+}
+
 void
 copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_t vert_data_count,
         size_t tri_data_count, int x, int y) {
@@ -97,9 +112,9 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     for(size_t i = 0; i < vert_data_count; ++i) {
         size_t i6 = *vertptr;
         size_t i14 = i * 14;
-        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + off_x;
-        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + off_y;
-        verts[i6 + 2] = hay_mesh.vertices[i14 + 2];
+        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + off_x + nudge();
+        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + off_y + nudge();
+        verts[i6 + 2] = hay_mesh.vertices[i14 + 2] + nudge();
         verts[i6 + 3] = hay_mesh.vertices[i14 + 3];
         verts[i6 + 4] = hay_mesh.vertices[i14 + 4];
         verts[i6 + 5] = hay_mesh.vertices[i14 + 5];
