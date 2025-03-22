@@ -368,6 +368,23 @@ physics_player(double dt) {
 }
 
 void
+cam_logic_1() {
+    vec3 v_matrix_x;
+    vec3 v_matrix_y;
+    vec3 v_matrix_z;
+    glm_vec3_copy(v_matrix[0], v_matrix_x);
+    glm_vec3_copy(v_matrix[1], v_matrix_y);
+    glm_vec3_copy(v_matrix[2], v_matrix_z);
+    glm_vec3_scale(v_matrix_x, -player.obj.pos[0], v_matrix_x);
+    glm_vec3_scale(v_matrix_y, -player.obj.pos[1], v_matrix_y);
+    glm_vec3_scale(v_matrix_z, -DIST_FROM_CAM, v_matrix_z);
+    glm_translated(v_matrix, v_matrix_x);
+    glm_translated(v_matrix, v_matrix_y);
+    glm_translated(v_matrix, v_matrix_z);
+
+}
+
+void
 tick_player(double dt) {
     physics_player(dt);
 
@@ -377,12 +394,30 @@ tick_player(double dt) {
 
     // Set up camera.
     glm_mat4_identity(v_matrix);
-    // Negative player translation..
-    // Invert translation.
-    glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
-    glm_translated(v_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
+
+    //glm_rotated(v_matrix, 0.7, (vec3) { 1.0, 0.0, 0.0 });
+
     // focus on player
-    glm_translated(v_matrix, (vec3){ -player.obj.pos[0], -player.obj.pos[1], 0.0 });
+    //glm_translated(v_matrix, (vec3){ -player.obj.pos[0], -player.obj.pos[1], 0.0 });
+    
+    // translate camera along its negative x, y, z, axis
+   // glm_translated(v_matrix, (vec3){ 0, 0, -DIST_FROM_CAM });
+    
+   
+    glm_translated(v_matrix, (vec3){ -player.obj.pos[0], -player.obj.pos[1], -DIST_FROM_CAM });
+    SDL_Log("camera pos a: %f %f %f %f", v_matrix[3][0], v_matrix[3][1], v_matrix[3][2], v_matrix[3][3]);
+    
+    mat4 help;
+    glm_rotate_make(help, 0.3, (vec3) { 1.0, 0.0, 0.0 });
+    glm_mul(help, v_matrix, v_matrix);
+
+    // vec3 v_matrix_z;
+    // glm_vec3_copy(v_matrix[2], v_matrix_z);
+    // glm_vec3_scale(v_matrix_z, -DIST_FROM_CAM, v_matrix_z);
+    // glm_translated(v_matrix, v_matrix_z);
+
+    
+    SDL_Log("camera pos b: %f %f %f %f", v_matrix[3][0], v_matrix[3][1], v_matrix[3][2], v_matrix[3][3]);
     
     pass_vp();
 }
