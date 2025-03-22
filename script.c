@@ -177,7 +177,7 @@ window_resized_hook(int width, int height) {
     pass_vp();
 }
 
-#define DIST_FROM_CAM 8
+#define DIST_FROM_CAM 32
 
 void
 init() {
@@ -208,7 +208,7 @@ init() {
     REPORT(glUseProgram(skel_pbr.self));
     glm_mat4_identity(v_matrix);
     glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
-    glm_translated(v_matrix, (vec3){ 0.0, 0.0, -8.0 });
+    glm_translated(v_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
     pass_vp();
 
     
