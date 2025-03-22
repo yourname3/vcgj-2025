@@ -76,7 +76,7 @@ void
 copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_t vert_data_count,
         size_t tri_data_count, int x, int y) {
     
-    GLuint tri_base = *vertptr;
+    GLuint tri_base = *vertptr / 6;
 
     SDL_Log("copy a mesh to %d %d -> tribase = %lu", x, y, tri_base);
     SDL_Log("triptr = %lu", *triptr);
@@ -126,7 +126,7 @@ gen_level_mesh(struct map *map) {
 
     SDL_Log("vertdc: %llu, tridc: %llu", vert_data_count, tri_data_count);
 
-    #define HACK 6 // for some reason, this works????????????
+    #define HACK 1 // for some reason, this works????????????
 
     // Fow now, just clone the vertex data for every vertex. We could try to 
     // find a way to only have one copy of normals.
@@ -147,7 +147,7 @@ gen_level_mesh(struct map *map) {
     for(int x = 0; x < map->width; ++x) {
         for(int y = 0; y < map->height; ++y) {
             if(map_get(map, x, y) == CELL_HAY) {
-                for(int hack = 0; hack < 6; ++hack) copy_hay_mesh(verts, tris, &vertptr, &triptr, vert_data_count,
+                copy_hay_mesh(verts, tris, &vertptr, &triptr, vert_data_count,
                     tri_data_count, x, y);
             }
         }
