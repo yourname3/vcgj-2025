@@ -115,19 +115,12 @@ skm_compute_dfs(struct skeletal_mesh *skm, int idx, mat4 root_pose) {
         glm_mat4_copy(root_pose, parent_matrix);
     }
     else {
-        //if(dump) SDL_Log("bone %d: parent = %d\n", idx, parent_idx);
         skm_compute_dfs(skm, parent_idx, root_pose);
         
         glm_mat4_copy(skm->bone_pose[parent_idx], parent_matrix);
-        //if(dump) dump_mat("source parent pose", skm->bone_pose[parent_idx]);
-        //if(dump) dump_mat("computed parent pose", parent_matrix);
     }
 
-    //if(dump) SDL_Log("bone %d: compute pose !!!", idx);
-    //if(dump) dump_mat("input 1: ", parent_matrix);
-    //if(dump) dump_mat("input 2: ", skm->bone_local_pose[idx]); 
     glm_mat4_mul(parent_matrix, skm->bone_local_pose[idx], skm->bone_pose[idx]);
-    //if(dump) dump_mat("i computed my pose: ", skm->bone_pose[idx]);
 }
 
 
@@ -180,9 +173,6 @@ skm_arm_bone_lerp_keys(struct skm_arm_anim_bone_playback *state, struct skm_arm_
 
     t = 0.0;
     if(q0 != q1) { t = (time - q0->time) / (q1->time - q0->time); }
-
-    //SDL_Log("fractional t = %f\n", t);
-    //SDL_Log("diff = %f vs %f\n",q0->time, q1->time);
     
 
     versor rot;
@@ -191,10 +181,6 @@ skm_arm_bone_lerp_keys(struct skm_arm_anim_bone_playback *state, struct skm_arm_
     glm_translate_make(state->position_matrix, pos);
     glm_quat_mat4(rot, state->rotation_matrix);
     glm_scale_make(state->scale_matrix, scale);
-
-    // dump_mat("translate", state->position_matrix);
-    // dump_mat("rotate", state->rotation_matrix);
-    // dump_mat("scale", state->scale_matrix);
 }
 
 void
@@ -213,7 +199,6 @@ skm_arm_bone_seek(struct skm_arm_anim_bone_playback *state, struct skm_arm_anim_
 
     while(state->rotation_idx + 1 < keys->rotation_count) {
         if(keys->rotation[state->rotation_idx + 1].time > time) {
-            SDL_Log("seek: checked %d keys", state->rotation_idx);
             break;
         }
 
@@ -233,7 +218,6 @@ skm_arm_bone_seek(struct skm_arm_anim_bone_playback *state, struct skm_arm_anim_
 
 void
 skm_arm_playback_seek(struct skm_armature_anim_playback *playback, float time) {
-    SDL_Log("--- begin seek ---");
     for(size_t i = 0; i < playback->anim->skm->bone_count; ++i) {
         skm_arm_bone_seek(&playback->state[i], &playback->anim->bones[i], time);
     }
@@ -275,16 +259,6 @@ skm_arm_playback_step(struct skm_armature_anim_playback *playback, float step) {
  * Transforms floating point values from a range of [-something, something] to
  * [0, 1] so that we can hand them to the shader through a texture.
  */
-// static inline float
-// upfloat(float in) {
-//     const float size = 16.0;
-//     float result = (in + size) / (2.0 * size);
-//     if(result < 0 || result > 1) {
-//         SDL_Log("uh oh -- upfloat bad: %f", in);
-//         exit(0);
-//     }
-//     return result;
-// }
 
 #define upfloat(x) x
 /** 
@@ -337,28 +311,4 @@ skm_gl_upload_bone_tform(struct skeletal_mesh *skm) {
         0,
         GL_RGBA, GL_FLOAT,
         skm->bone_tform_tex_data));
-
-    // for(int i = 0; i < skm->bone_count * 16;) {
-    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
-    //         skm->bone_tform_tex_data[i + 1],
-    //         skm->bone_tform_tex_data[i + 2],
-    //         skm->bone_tform_tex_data[i + 3]);
-    //     i += 4;
-    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
-    //         skm->bone_tform_tex_data[i + 1],
-    //         skm->bone_tform_tex_data[i + 2],
-    //         skm->bone_tform_tex_data[i + 3]);
-    //     i += 4;
-    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
-    //         skm->bone_tform_tex_data[i + 1],
-    //         skm->bone_tform_tex_data[i + 2],
-    //         skm->bone_tform_tex_data[i + 3]);
-    //     i += 4;
-    //     SDL_Log("column %d -> %f %f %f %f", i, skm->bone_tform_tex_data[i],
-    //         skm->bone_tform_tex_data[i + 1],
-    //         skm->bone_tform_tex_data[i + 2],
-    //         skm->bone_tform_tex_data[i + 3]);
-    //     i += 4;
-    // }
-    // exit(0);
 }
