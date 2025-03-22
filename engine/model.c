@@ -151,10 +151,8 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
             node_map[i] = bone->mNode;
             tmp_heirarchy[i] = bone->mNode->mParent;
             convert_to_cglm(local_pose[i], &bone->mNode->mTransformation);
-            //dump_mat("bone local pose", local_pose[i]);
 
             convert_to_cglm(inverse_bind[i], &bone->mOffsetMatrix);
-            //dump_mat("bone inverse bind", inverse_bind[i]);
 
             struct import_mapping mapping = {
                 .name = &bone->mNode->mName,

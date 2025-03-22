@@ -96,10 +96,6 @@ skm_destroy(struct skeletal_mesh *skm) {
     // TODO destroy GL properties
 }
 
-static bool dump = true;
-void
-dump_mat(const char *name, mat4 mat);
-
 static void
 skm_compute_dfs(struct skeletal_mesh *skm, int idx, mat4 root_pose) {
     if(idx == -1) return;

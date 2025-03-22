@@ -38,9 +38,6 @@ static mat4 m_matrix;
 
 static GLuint skeleton_count_loc = 0;
 
-
-static mat4 skeleton_matrix[4];
-
 // view projection matrix
 static mat4 p_matrix;
 
@@ -124,10 +121,6 @@ init() {
 }
 
 #include <stdlib.h>
-
-static bool dump = true;
-void
-dump_mat(const char *name, mat4 mat);
 
 void
 janky_rotate(mat4 pose, float amount, vec3 axis) {

@@ -17,7 +17,6 @@ extern void tick(double dt);
 extern void render();
 
 static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
 SDL_GLContext gl_ctx = NULL;
 
 static bool quit = false;
@@ -142,7 +141,7 @@ main(int argc, char **argv) {
         return 1;
     }
 
-    int version = gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
+    gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
     SDL_Log("OpenGL version: %d.%d", GLVersion.major, GLVersion.minor);
 
     const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
