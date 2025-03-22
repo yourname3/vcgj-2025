@@ -50,6 +50,10 @@ static mat4 p_matrix;
 static mat4 v_matrix;
 
 struct {
+    struct phys_obj obj;
+    
+    vec2 velocity;
+
     mat4 model_matrix;
 } player;
 
@@ -249,6 +253,14 @@ window_resized_hook(int width, int height) {
 #define DIST_FROM_CAM 8
 
 void
+init_player() {
+    player.obj.on_floor = false;
+    glm_vec2_copy((vec2){ 4, 2 }, player.obj.pos);
+
+    player.obj.col_normal_count = 0;
+}
+
+void
 init() {
     static_pbr.self = ourgl_compile_shader(static_vert_src, skel_frag_src);
     REPORT(static_pbr.p = glGetUniformLocation(static_pbr.self, "u_p"));
@@ -320,6 +332,8 @@ init() {
 
     SDL_Log("init called.");
 
+    init_player();
+
     init_level_gl();
     gen_level_mesh(&map0);
 }
@@ -342,10 +356,20 @@ janky_rotate(mat4 pose, float amount, vec3 axis) {
 }
 
 void
+physics_player(double dt) {
+    vec2 gravity = { 0, -9 * dt };
+    glm_vec2_add(player.velocity, gravity, player.velocity);
+
+    phys_slide_motion_solver(player.velocity, player.velocity, &player.obj, 0.005, dt);
+}
+
+void
 tick_player(double dt) {
+    physics_player(dt);
+
     // Reset the player's matrix.
     glm_mat4_identity(player.model_matrix);
-    glm_translated(player.model_matrix, (vec3){ 4.0, 2.0, 0.0 });
+    glm_translated(player.model_matrix, (vec3){ player.obj.pos[0], player.obj.pos[1], 0.0 });
 
     // Set up camera.
     glm_mat4_identity(v_matrix);
@@ -354,7 +378,7 @@ tick_player(double dt) {
     glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
     glm_translated(v_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
     // focus on player
-    glm_translated(v_matrix, (vec3){ -4.0, -2.0, 0.0 });
+    glm_translated(v_matrix, (vec3){ -player.obj.pos[0], -player.obj.pos[1], 0.0 });
     
     pass_vp();
 }

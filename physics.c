@@ -61,21 +61,6 @@ struct map map0 = {
 
 struct map *cur_map = &map0;
 
-struct phys_obj {
-    vec2 pos;
-    bool on_floor;
-
-    vec2 col_normals[4];
-    int col_normal_count;
-};
-
-struct overlap {
-    bool is_overlap;
-
-    struct phys_obj owned;
-    struct phys_obj *collision;
-};
-
 float
 obj_left(struct phys_obj *obj) {
     return obj->pos[0] - 1;
