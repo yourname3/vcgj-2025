@@ -252,13 +252,7 @@ window_resized_hook(int width, int height) {
 
 #define DIST_FROM_CAM 8
 
-void
-init_player() {
-    player.obj.on_floor = false;
-    glm_vec2_copy((vec2){ 4, 2 }, player.obj.pos);
-
-    player.obj.col_normal_count = 0;
-}
+void init_player();
 
 void
 init() {
@@ -356,9 +350,19 @@ janky_rotate(mat4 pose, float amount, vec3 axis) {
 }
 
 void
+init_player() {
+    player.obj.on_floor = false;
+    glm_vec2_copy((vec2){ 4, 20 }, player.obj.pos);
+
+    player.obj.col_normal_count = 0;
+
+    glm_vec2_copy((vec2){ 0, -10 }, player.velocity);
+}
+
+void
 physics_player(double dt) {
-    vec2 gravity = { 0, -9 * dt };
-    glm_vec2_add(player.velocity, gravity, player.velocity);
+    //vec2 gravity = { 0, -9 * dt };
+    //glm_vec2_add(player.velocity, gravity, player.velocity);
 
     phys_slide_motion_solver(player.velocity, player.velocity, &player.obj, 0.005, dt);
 }

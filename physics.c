@@ -4,6 +4,8 @@
 #include <cglm/cglm.h>
 #include <math.h>
 
+#include <SDL3/SDL_log.h>
+
 uint8_t
 map_get(struct map *map, int32_t x, int32_t y) {
     if(x < 0 || y < 0) return CELL_EMPTY;
@@ -117,14 +119,18 @@ obj_get_normal_from_overlap(vec2 normal_out, struct phys_obj *self, struct phys_
 struct overlap
 map_get_overlap_at_point(struct map *map, float x, float y) {
     int32_t cell_x = (int32_t)floorf((x + 1.0) / 2.0);
-    int32_t cell_y = (int32_t)floorf((x + 1.0) / 2.0);
+    int32_t cell_y = (int32_t)floorf((y + 1.0) / 2.0);
+    //SDL_Log("check: %d, %d", cell_x, cell_y);
     uint8_t get = map_get(map, cell_x, cell_y);
     if(get == CELL_EMPTY) {
+        //SDL_Log("empty celll!!");
         return (struct overlap){
             .is_overlap = false,
             .collision = NULL
         };
     }
+
+    //SDL_Log("found cell at %d, %d ", cell_x, cell_y);
 
     // Construct a new phys_obj at that location.
     struct overlap result;
@@ -144,15 +150,16 @@ map_get_overlap_at_point(struct map *map, float x, float y) {
 struct overlap
 map_get_overlap(struct map *map, struct phys_obj *obj) {
     struct overlap result = { .is_overlap = false, .collision = NULL };
+    //SDL_Log("check tl");
     result = map_get_overlap_at_point(map, obj_left(obj), obj_top(obj));
     if(result.is_overlap) return result;
-
+    //SDL_Log("check bl");
     result = map_get_overlap_at_point(map, obj_left(obj), obj_bottom(obj));
     if(result.is_overlap) return result;
-
+    //SDL_Log("check tr");
     result = map_get_overlap_at_point(map, obj_right(obj), obj_top(obj));
     if(result.is_overlap) return result;
-
+    //SDL_Log("check br");
     result = map_get_overlap_at_point(map, obj_right(obj), obj_bottom(obj));
     if(result.is_overlap) return result;
 
@@ -171,7 +178,10 @@ phys_solve_motion_iterative(struct phys_obj *obj, vec2 motion, float margin) {
     vec2 step;
     glm_vec2_copy(motion, step);
 
-    struct overlap overlap;
+    struct overlap overlap = {
+        .is_overlap = false,
+        .collision = NULL
+    };
     int iterations = 0;
     const int max_iterations = 80;
 
@@ -221,6 +231,8 @@ phys_slide_motion_solver(vec2 vel, vec2 vel_out, struct phys_obj *obj, float mar
 
         struct overlap overlap =
             phys_solve_motion_iterative(obj, total_vel, margin);
+
+        //SDL_Log("overlap: %d", overlap.is_overlap);
         
         if(!overlap.is_overlap) {
             // No overlap--no collisions during this slide, early return.
