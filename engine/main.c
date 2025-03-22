@@ -44,10 +44,15 @@ finalize() {
     SDL_Log("Shutting down.");
 }
 
+extern void window_resized_hook(int width, int height);
+
 void
 window_resized(int width, int height) {
     REPORT(glViewport(0, 0, width, height));
+    window_resized_hook(width, height);
 }
+
+
 
 void
 main_loop(void) {

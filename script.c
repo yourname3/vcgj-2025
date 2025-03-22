@@ -57,6 +57,12 @@ pass_vp() {
     REPORT(glUniformMatrix4fv(v_loc, 1, false, v_matrix[0]));
 }
 
+void
+window_resized_hook(int width, int height) {
+    setup_proj_mat(width, height);
+    pass_vp();
+}
+
 #define DIST_FROM_CAM 8
 
 void
