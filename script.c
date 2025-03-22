@@ -76,6 +76,8 @@ void
 copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_t vert_data_count,
         size_t tri_data_count, int x, int y) {
     
+    // The actual vertex indices into the array, as far as the GPU is concerned,
+    // are real vertex indices, i.e. the sub_data pointer divided by 6.
     GLuint tri_base = *vertptr / 6;
 
     SDL_Log("copy a mesh to %d %d -> tribase = %lu", x, y, tri_base);
@@ -126,21 +128,17 @@ gen_level_mesh(struct map *map) {
 
     SDL_Log("vertdc: %llu, tridc: %llu", vert_data_count, tri_data_count);
 
-    #define HACK 1 // for some reason, this works????????????
-
     // Fow now, just clone the vertex data for every vertex. We could try to 
     // find a way to only have one copy of normals.
-    size_t verts_size = sizeof(float) * 6 * hay_count * vert_data_count * HACK;
+    size_t verts_size = sizeof(float) * 6 * hay_count * vert_data_count;
     float *verts = eng_zalloc(verts_size);
-    size_t tris_size = sizeof(GLuint) * 3 * hay_count * tri_data_count * HACK;
+    size_t tris_size = sizeof(GLuint) * 3 * hay_count * tri_data_count;
     GLuint *tris = eng_zalloc(tris_size);
 
     GLuint vertptr = 0;
     GLuint triptr = 0;
 
-    level_mesh.triangle_count = hay_count * tri_data_count * 3 * HACK;
-
-    #undef HACK
+    level_mesh.triangle_count = hay_count * tri_data_count * 3;
 
     SDL_Log("level_mesh.triangle_count = %llu", level_mesh.triangle_count);
 
