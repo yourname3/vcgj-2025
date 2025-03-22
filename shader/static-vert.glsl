@@ -16,7 +16,7 @@ varying vec3 v_pos;
 void main() {
     mat4 vm = u_v * u_m;
 
-    v_norm = vm * vec4(a_norm, 0.0);
+    v_norm = (vm * vec4(a_norm, 0.0)).xyz;
 
     vec4 eye_space = vm * vec4(a_pos, 1.0);
     v_pos = eye_space.xyz;

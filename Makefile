@@ -15,7 +15,9 @@ TOOL_SHADER2C=\
 
 SHADERS=\
 	shader/skel-frag.glsl \
-	shader/skel-vert.glsl
+	shader/skel-vert.glsl \
+	shader/static-frag.glsl \
+	shader/static-vert.glsl 
 
 CFLAGS=-Wall -g 
 

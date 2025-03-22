@@ -50,6 +50,9 @@ struct {
 } player;
 
 struct {
+    GLuint v;
+    GLuint p;
+
     GLuint self;
 } static_pbr;
 
@@ -109,6 +112,8 @@ gen_level_mesh(struct map *map) {
     size_t vert_data_count = hay_mesh.vertices_count / 14;
     size_t tri_data_count = hay_mesh.triangles_count / 3;
 
+    SDL_Log("vertdc: %llu, tridc: %llu", vert_data_count, tri_data_count);
+
     // Fow now, just clone the vertex data for every vertex. We could try to 
     // find a way to only have one copy of normals.
     size_t verts_size = sizeof(float) * 6 * hay_count * vert_data_count;
@@ -132,7 +137,7 @@ gen_level_mesh(struct map *map) {
 
     REPORT(glBindBuffer(GL_ARRAY_BUFFER, level_mesh.array_buf));
     REPORT(glBufferData(GL_ARRAY_BUFFER, verts_size, verts, GL_STATIC_DRAW));
-    REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, level_mesh.array_buf));
+    REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, level_mesh.element_buf));
     REPORT(glBufferData(GL_ELEMENT_ARRAY_BUFFER, tris_size, tris, GL_STATIC_DRAW));
 
     eng_free(verts, verts_size);
@@ -152,6 +157,10 @@ pass_vp() {
     REPORT(glUseProgram(skel_pbr.self));
     REPORT(glUniformMatrix4fv(skel_pbr.p, 1, false, p_matrix[0]));
     REPORT(glUniformMatrix4fv(skel_pbr.v, 1, false, v_matrix[0]));
+
+    REPORT(glUseProgram(static_pbr.self));
+    REPORT(glUniformMatrix4fv(static_pbr.p, 1, false, p_matrix[0]));
+    REPORT(glUniformMatrix4fv(static_pbr.v, 1, false, v_matrix[0]));
 }
 
 void
@@ -164,6 +173,10 @@ window_resized_hook(int width, int height) {
 
 void
 init() {
+    static_pbr.self = ourgl_compile_shader(static_vert_src, static_frag_src);
+    REPORT(static_pbr.p = glGetUniformLocation(static_pbr.self, "u_p"));
+    REPORT(static_pbr.v = glGetUniformLocation(static_pbr.self, "u_v"));
+
     skel_pbr.self = ourgl_compile_shader(skel_vert_src, skel_frag_src);
 
     REPORT(skel_pbr.p = glGetUniformLocation(skel_pbr.self, "u_p"));
@@ -281,7 +294,9 @@ render() {
     REPORT(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3)));
     REPORT(glEnableVertexAttribArray(1));
 
-    SDL_Log("level mesh tri count: %u\n", level_mesh.triangle_count);
+    //SDL_Log("level mesh tri count: %u\n", level_mesh.triangle_count);
+
+    REPORT(glUseProgram(static_pbr.self));
 
     REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
 }
