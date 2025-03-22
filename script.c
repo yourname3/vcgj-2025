@@ -83,8 +83,6 @@ init_level_gl() {
 // used to make the hay look slightly more interesting.
 float
 nudge() {
-    return 0;
-
     // PROBLEM: Our mesh import apparently splits the vertices.
     // If we can fix this, then we can do this.
 
@@ -106,15 +104,20 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     SDL_Log("copy a mesh to %d %d -> tribase = %lu", x, y, tri_base);
     SDL_Log("triptr = %lu", *triptr);
 
-    float off_x = x * 2;
-    float off_y = y * 2;
+    float off_x = x * 2 + nudge();
+    float off_y = y * 2 + nudge();
+    float off_z = nudge();
+
+    // Unless we nudge all the vertices that are at thes ame location (but that
+    // have different normals?) by the same amount, we can't do the nugding. but
+    // we can nudge entire cubes.
 
     for(size_t i = 0; i < vert_data_count; ++i) {
         size_t i6 = *vertptr;
         size_t i14 = i * 14;
-        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + off_x + nudge();
-        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + off_y + nudge();
-        verts[i6 + 2] = hay_mesh.vertices[i14 + 2] + nudge();
+        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + off_x;
+        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + off_y;
+        verts[i6 + 2] = hay_mesh.vertices[i14 + 2] + off_z;
         verts[i6 + 3] = hay_mesh.vertices[i14 + 3];
         verts[i6 + 4] = hay_mesh.vertices[i14 + 4];
         verts[i6 + 5] = hay_mesh.vertices[i14 + 5];
