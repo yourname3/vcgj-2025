@@ -78,7 +78,7 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     GLuint tri_base = *vertptr;
 
     for(size_t i = 0; i < vert_data_count; ++i) {
-        size_t i6 = i * 6;
+        size_t i6 = *vertptr;
         size_t i14 = i * 14;
         verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + x * 2;
         verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + y * 2;
@@ -86,13 +86,18 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
         verts[i6 + 3] = hay_mesh.vertices[i14 + 3];
         verts[i6 + 4] = hay_mesh.vertices[i14 + 4];
         verts[i6 + 5] = hay_mesh.vertices[i14 + 5];
+
+        *vertptr += 6;
     }
 
     for(size_t i = 0; i < tri_data_count; ++i) {
+        size_t j3 = *triptr;
         size_t i3 = i * 3;
-        tris[i3 + 0] = hay_mesh.triangles[i3 + 0] + tri_base;
-        tris[i3 + 1] = hay_mesh.triangles[i3 + 1] + tri_base;
-        tris[i3 + 2] = hay_mesh.triangles[i3 + 2] + tri_base;
+        tris[j3 + 0] = hay_mesh.triangles[i3 + 0] + tri_base;
+        tris[j3 + 1] = hay_mesh.triangles[i3 + 1] + tri_base;
+        tris[j3 + 2] = hay_mesh.triangles[i3 + 2] + tri_base;
+
+        *triptr += 3;
     }
 }
 
