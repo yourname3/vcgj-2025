@@ -83,6 +83,8 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
     float *vert_data;
     GLuint *elem_data;
 
+    SDL_Log("mNumVertices = %u, mNumFaaces = %u", mesh->mNumVertices, mesh->mNumFaces);
+
     size_t vert_arrsize = mesh->mNumVertices * 14;
     size_t elem_arrsize = mesh->mNumFaces * 3; // Triangulated
 
