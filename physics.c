@@ -29,8 +29,13 @@ map_set(struct map *map, int32_t x, int32_t y, uint8_t value) {
 // the 0th-5th are all 0,0
 // the 6th is at correct place...?
 
+//
+// MORE LORE: it turns out that the 6th index is required to get ANYTHING
+// to draw. So the 1st block is drawn, the 6th, etc, but this depends on as
+// we iterate through the map. So 5/6th blocks are just rejected.
+
 uint8_t map0_data[] = {
-    1, 1, 1, 1, 1, 1, 1, 0,
+    1, 1, 1, 0, 1, 1, 1, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,

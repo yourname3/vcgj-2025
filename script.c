@@ -78,7 +78,7 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     
     GLuint tri_base = *vertptr;
 
-    SDL_Log("copy a mesh to %d %d", x, y);
+    SDL_Log("copy a mesh to %d %d -> tribase = %lu", x, y, tri_base);
 
     float off_x = x * 2;
     float off_y = y * 2;
