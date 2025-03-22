@@ -52,6 +52,7 @@ struct {
 struct {
     GLuint v;
     GLuint p;
+    GLuint m;
 
     GLuint self;
 } static_pbr;
@@ -76,6 +77,8 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
         size_t tri_data_count, int x, int y) {
     
     GLuint tri_base = *vertptr;
+
+    SDL_Log("copy a mesh to %d %d", x, y);
 
     for(size_t i = 0; i < vert_data_count; ++i) {
         size_t i6 = *vertptr;
@@ -181,6 +184,7 @@ init() {
     static_pbr.self = ourgl_compile_shader(static_vert_src, static_frag_src);
     REPORT(static_pbr.p = glGetUniformLocation(static_pbr.self, "u_p"));
     REPORT(static_pbr.v = glGetUniformLocation(static_pbr.self, "u_v"));
+    REPORT(static_pbr.m = glGetUniformLocation(static_pbr.self, "u_m"));
 
     skel_pbr.self = ourgl_compile_shader(skel_vert_src, skel_frag_src);
 
@@ -194,11 +198,21 @@ init() {
     const float h = 480;
     setup_proj_mat(w, h);
 
+
+    mat4 level_tform;
+    glm_mat4_identity(level_tform);
+
+    REPORT(glUseProgram(static_pbr.self));
+    REPORT(glUniformMatrix4fv(static_pbr.m, 1, false, level_tform[0]));
+
     REPORT(glUseProgram(skel_pbr.self));
     glm_mat4_identity(v_matrix);
     glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
     glm_translated(v_matrix, (vec3){ 0.0, 0.0, -8.0 });
     pass_vp();
+
+    
+
 
     struct import_data player_id = {
         .skm = (struct skeletal_mesh*[]){ &player_mesh },
