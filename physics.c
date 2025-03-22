@@ -1,18 +1,5 @@
+#include "map.h"
 #include "engine/types.h"
-
-#define CELL_EMPTY 0
-#define CELL_HAY   1
-#define CELL_PLAYER 2
-
-struct map {
-    int32_t width;
-    int32_t height;
-
-    int32_t player_x;
-    int32_t player_y;
-
-    uint8_t *data;
-};
 
 uint8_t
 map_get(struct map *map, int32_t x, int32_t y) {

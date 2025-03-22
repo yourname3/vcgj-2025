@@ -2,10 +2,13 @@
 #include "engine/shader.h"
 #include "engine/our_gl.h"
 #include "engine/model.h"
+#include "engine/alloc.h"
 
 #include "engine/serialize/serialize_skm.h"
 
 #include "obj/shader.h"
+
+#include "map.h"
 
 #include <cglm/cglm.h>
 
@@ -54,8 +57,87 @@ struct {
     GLuint array_buf;
     GLuint element_buf;
 
+    size_t triangle_count;
+
     GLuint shader;
-} level_mesh;
+} level_mesh = {0};
+
+void
+init_level_gl() {
+    REPORT(glGenBuffers(1, &level_mesh.array_buf));
+    REPORT(glGenBuffers(1, &level_mesh.element_buf));
+}
+
+void
+copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_t vert_data_count,
+        size_t tri_data_count, int x, int y) {
+    
+    GLuint tri_base = *vertptr;
+
+    for(size_t i = 0; i < vert_data_count; ++i) {
+        size_t i6 = i * 6;
+        size_t i14 = i * 14;
+        verts[i6 + 0] = hay_mesh.vertices[i14 + 0] + x * 2;
+        verts[i6 + 1] = hay_mesh.vertices[i14 + 1] + y * 2;
+        verts[i6 + 2] = hay_mesh.vertices[i14 + 2];
+        verts[i6 + 3] = hay_mesh.vertices[i14 + 3];
+        verts[i6 + 4] = hay_mesh.vertices[i14 + 4];
+        verts[i6 + 5] = hay_mesh.vertices[i14 + 5];
+    }
+
+    for(size_t i = 0; i < tri_data_count; ++i) {
+        size_t i3 = i * 3;
+        tris[i3 + 0] = hay_mesh.triangles[i3 + 0] + tri_base;
+        tris[i3 + 1] = hay_mesh.triangles[i3 + 1] + tri_base;
+        tris[i3 + 2] = hay_mesh.triangles[i3 + 2] + tri_base;
+    }
+}
+
+void
+gen_level_mesh(struct map *map) {
+    // First pass: count mesh.
+    size_t hay_count = 0;
+
+    for(int x = 0; x < map->width; ++x) {
+        for(int y = 0; y < map->height; ++y) {
+            if(map_get(map, x, y) == CELL_HAY) {
+                hay_count += 1;
+            }
+        }
+    }
+
+    size_t vert_data_count = hay_mesh.vertices_count / 14;
+    size_t tri_data_count = hay_mesh.triangles_count / 3;
+
+    // Fow now, just clone the vertex data for every vertex. We could try to 
+    // find a way to only have one copy of normals.
+    size_t verts_size = sizeof(float) * 6 * hay_count * vert_data_count;
+    float *verts = eng_zalloc(verts_size);
+    size_t tris_size = sizeof(GLuint) * 3 * hay_count * tri_data_count;
+    GLuint *tris = eng_zalloc(tris_size);
+
+    GLuint vertptr = 0;
+    GLuint triptr = 0;
+
+    level_mesh.triangle_count = hay_count * tri_data_count * 3;
+
+    for(int x = 0; x < map->width; ++x) {
+        for(int y = 0; y < map->height; ++y) {
+            if(map_get(map, x, y) == CELL_HAY) {
+                copy_hay_mesh(verts, tris, &vertptr, &triptr, vert_data_count,
+                    tri_data_count, x, y);
+            }
+        }
+    }
+
+    REPORT(glBindBuffer(GL_ARRAY_BUFFER, level_mesh.array_buf));
+    REPORT(glBufferData(GL_ARRAY_BUFFER, verts_size, verts, GL_STATIC_DRAW));
+    REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, level_mesh.array_buf));
+    REPORT(glBufferData(GL_ELEMENT_ARRAY_BUFFER, tris_size, tris, GL_STATIC_DRAW));
+
+    eng_free(verts, verts_size);
+    eng_free(tris, tris_size);
+}
 
 void
 setup_proj_mat(float window_w, float window_h) {
@@ -132,6 +214,9 @@ init() {
     REPORT(glUniform1i(skel_pbr.skeleton, 0));
 
     SDL_Log("init called.");
+
+    init_level_gl();
+    gen_level_mesh(&map0);
 }
 
 #include <stdlib.h>
@@ -186,4 +271,17 @@ tick(double dt) {
 void
 render() {
     skm_gl_draw(&player_mesh);
+
+    REPORT(glBindBuffer(GL_ARRAY_BUFFER, level_mesh.array_buf));
+    REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, level_mesh.element_buf));
+
+    REPORT(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
+    REPORT(glEnableVertexAttribArray(0));
+
+    REPORT(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3)));
+    REPORT(glEnableVertexAttribArray(1));
+
+    SDL_Log("level mesh tri count: %u\n", level_mesh.triangle_count);
+
+    REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
 }

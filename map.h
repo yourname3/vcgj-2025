@@ -19,4 +19,8 @@ void map_set(struct map *map, int32_t x, int32_t y, uint8_t value);
 
 extern struct map map0;
 
+#define CELL_EMPTY 0
+#define CELL_HAY   1
+#define CELL_PLAYER 2
+
 #endif
