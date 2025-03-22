@@ -85,7 +85,7 @@ brdf_envmap(vec3 diffuse_color, vec3 f0, float roughness, vec3 n, vec3 l, vec3 v
 
     vec3 Fr = (D * V) * F;
 
-    Fr = PI * Fr * sampled_Il * NoL / D;
+    Fr = 4.0 * NoV * Fr * sampled_Il * NoL / D;
 
     return Fd + Fr;
 }
@@ -94,7 +94,7 @@ void main() {
     vec3 normal = normalize(v_norm);
 
     float metallic = 0.0;
-    float perceptual_roughness = 0.3;
+    float perceptual_roughness = 0.8;
 
     float reflectance = 0.5;
 
