@@ -80,13 +80,11 @@ init() {
     const float w = 640;
     const float h = 480;
     setup_proj_mat(w, h);
-    vec3 axis = { 0, 1, 0 };
-    glm_scale(m_matrix, (vec3){ 3.0, 3.0, 3.0 });
-    glm_rotated(m_matrix, -0.4, axis);
-    glm_translated(m_matrix, (vec3){ 0.0, 0.0, -DIST_FROM_CAM });
 
     REPORT(glUseProgram(skel_shader));
     glm_mat4_identity(v_matrix);
+    glm_rotated(v_matrix, 0.3, (vec3){ 1.0, 0.0, 0.0 });
+    glm_translated(v_matrix, (vec3){ 0.0, 0.0, -8.0 });
     pass_vp();
 
     struct skeletal_mesh *wanted_meshes[] = { &test_mesh };
