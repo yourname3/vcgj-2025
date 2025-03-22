@@ -223,6 +223,7 @@ init() {
     player_mesh.shader = skel_pbr.self;
     skm_gl_init(&player_mesh);
 
+    REPORT(glUseProgram(skel_pbr.self));
     REPORT(glUniform1f(skel_pbr.skeleton_count, (float)player_mesh.bone_count));
     REPORT(glUniform1i(skel_pbr.skeleton, 0));
 
