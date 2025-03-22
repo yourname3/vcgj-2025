@@ -25,39 +25,8 @@ struct skm_armature_anim_playback test_playback = {0};
 // for the shader versus the last stored state, and update everything that needed
 // updating.
 
-// const char *my_vs=
-// "#version 100\n"
-// "precision highp float;\n"
-// "\n"
-// "attribute vec3 a_pos;\n"
-// "attribute vec3 a_norm;\n"
-// "\n"
-// "varying vec3 v_norm;\n"
-// "\n"
-// "uniform mat4 u_vp;\n"
-// "uniform mat4 u_m;\n"
-// "\n"
-// "void main() {\n"
-// "    v_norm = (u_m * vec4(a_norm, 0.0)).xyz; // cheap approx\n"
-// "    gl_Position = u_vp * u_m * vec4(a_pos, 1.0);\n"
-// "}\n";
-
-// const char *my_fs=
-// "#version 100\n"
-// "precision highp float;\n"
-// "\n"
-// "varying vec3 v_norm;\n"
-// "\n"
-// "void main() {\n"
-// "    vec3 norm = normalize(v_norm);\n"
-// "    float light = clamp(dot(norm, normalize(vec3(-0.5, -0.5, 1.0))), 0.0, 1.0);\n"
-// "    light += 0.2;\n"
-// "    light = clamp(light, 0.0, 1.0);\n"
-// "    vec3 color = light * vec3(1.0, 0.5, 0.2);"
-// "    gl_FragColor = vec4(color, 1.0);\n"
-// "}\n";
-
-static GLuint vp_loc = 0;
+static GLuint v_loc = 0;
+static GLuint p_loc = 0;
 //static GLuint m_loc = 0;
 static GLuint skeleton_loc = 0;
 static GLuint skel_shader = 0;
@@ -84,10 +53,8 @@ setup_proj_mat(float window_w, float window_h) {
 
 void
 pass_vp() {
-    mat4 vp;
-    glm_mat4_mul(p_matrix, v_matrix, vp);
-
-    REPORT(glUniformMatrix4fv(vp_loc, 1, false, vp[0]));
+    REPORT(glUniformMatrix4fv(p_loc, 1, false, p_matrix[0]));
+    REPORT(glUniformMatrix4fv(v_loc, 1, false, v_matrix[0]));
 }
 
 #define DIST_FROM_CAM 8
@@ -96,7 +63,8 @@ void
 init() {
     skel_shader = ourgl_compile_shader(skel_vert_src, skel_frag_src);
 
-    REPORT(vp_loc = glGetUniformLocation(skel_shader, "u_vp"));
+    REPORT(p_loc = glGetUniformLocation(skel_shader, "u_p"));
+    REPORT(v_loc = glGetUniformLocation(skel_shader, "u_v"));
     //REPORT(m_loc = glGetUniformLocation(skel_shader, "u_m"));
     REPORT(skeleton_loc = glGetUniformLocation(skel_shader, "u_skeleton"));
     REPORT(skeleton_count_loc = glGetUniformLocation(skel_shader, "u_skeleton_count"));

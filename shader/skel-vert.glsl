@@ -9,9 +9,13 @@ attribute vec3 a_norm;
 attribute vec4 a_weight;
 attribute vec4 a_weight_idx;
 
-varying vec3 v_norm;
+varying vec3 v_norm; // Eye space
+varying vec3 v_pos;
 
-uniform mat4 u_vp;
+// View matrix. Used to translate stuff to eye space
+uniform mat4 u_v;
+// Projection matrix
+uniform mat4 u_p;
 // uniform mat4 u_m;
 
 // Bone matrices.
@@ -36,6 +40,10 @@ void main() {
                       + (read_skeleton(a_weight_idx.z) * a_weight.z)
                       + (read_skeleton(a_weight_idx.w) * a_weight.w);
 
-    v_norm = (model_matrix * vec4(a_norm, 0.0)).xyz; // cheap approx
-    gl_Position = u_vp * model_matrix * vec4(a_pos, 1.0);
+    v_norm = (u_v * model_matrix * vec4(a_norm, 0.0)).xyz; // cheap approx
+    
+    vec4 eye_space = u_v * model_matrix * vec4(a_pos, 1.0);
+    v_pos = eye_space.xyz;
+
+    gl_Position = u_p * eye_space;
 }
