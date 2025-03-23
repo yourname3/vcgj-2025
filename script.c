@@ -44,6 +44,7 @@ struct carrot {
 };
 
 size_t carrot_count = 1;
+size_t got_carrot_count = 0;
 
 struct carrot carrots[256] = {0}; 
 // {
@@ -757,6 +758,8 @@ eat_carrot() {
 
     max_walk_vel += 0.1f;
     max_jump_vel += 0.2f;
+
+    got_carrot_count += 1;
 }
 
 void
@@ -992,7 +995,9 @@ ui(struct nk_context *ctx, int win_width, int win_height) {
 	if(nk_begin(ctx, "ui", nk_rect(x, y, width, height), NK_WINDOW_NO_SCROLLBAR)) {
 		//nk_layout_row_static(ctx, 30, width / 4, 3);
 		nk_layout_row_dynamic(ctx, 60, 1);
-        nk_label(ctx, "0/3 carrots", NK_LEFT);
+        char buf[128] = {0};
+        snprintf(buf, 128, "%zu/%zu carrots", got_carrot_count, carrot_count);
+        nk_label(ctx, buf, NK_LEFT);
 		// if(nk_widget_is_hovered(ctx)) desc_text = "More arrows";
 		// nk_button_label(ctx, "Extra Arrows");
 
