@@ -592,9 +592,20 @@ animate_player(double dt) {
 
     step(&anim_transition_blend, 1.0, 3.0 * dt);
     if(next != anim_cur) {
-        anim_prev = anim_cur;
+        //if(anim_transition_blend >= 0.5) {
+        //    
+        //}
+        
+
+        // Only ever transition "fully" from one animation to another.
+        // Otherwise, keep the existing previous animation and blend from
+        // that one to the new one.
+        if(anim_transition_blend >= 0.99) {
+            anim_transition_blend = 0.0;
+            anim_prev = anim_cur;
+        }
+
         anim_cur = next;
-        anim_transition_blend = 0.0;
     }
 }
 
