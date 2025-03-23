@@ -222,6 +222,7 @@ skm_arm_bone_seek(struct skm_arm_anim_bone_playback *state, struct skm_arm_anim_
 
 void
 skm_arm_playback_seek(struct skm_armature_anim_playback *playback, float time) {
+    if(!playback->anim->skm) return;
     for(size_t i = 0; i < playback->anim->skm->bone_count; ++i) {
         skm_arm_bone_seek(&playback->state[i], &playback->anim->bones[i], time);
     }
@@ -231,6 +232,7 @@ skm_arm_playback_seek(struct skm_armature_anim_playback *playback, float time) {
 void
 skm_arm_playback_init(struct skm_armature_anim_playback *playback, struct skm_armature_anim *anim) {
     playback->anim = anim;
+    if(!anim->skm) return;
     playback->state = eng_zalloc(sizeof(*playback->state) * anim->skm->bone_count);
     skm_arm_playback_seek(playback, 0.0f);
 }
@@ -249,6 +251,7 @@ skm_arm_playback_apply(struct skm_armature_anim_playback *playback) {
 
 void
 skm_arm_playback_step(struct skm_armature_anim_playback *playback, float step) {
+    if(!playback->anim->skm) return;
     // TODO: Make this not absurdly inefficient.
     skm_arm_playback_seek(playback, playback->time + step);
 }

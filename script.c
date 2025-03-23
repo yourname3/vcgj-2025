@@ -361,7 +361,7 @@ init() {
         .got_texture = 0,
     };
 
-    load_model("blender/player.glb", &player_id);
+    load_model("blender/horse.glb", &player_id);
     load_model("blender/hay.glb", &hay_id);
 
     player_tex = player_id.texture[0];
