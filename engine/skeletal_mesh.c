@@ -174,9 +174,13 @@ skm_arm_bone_lerp_keys(struct skm_arm_anim_bone_playback *state, struct skm_arm_
     versor rot;
     glm_quat_nlerp(q0->value, q1->value, t, rot);
 
-    glm_translate_make(state->position_matrix, pos);
-    glm_quat_mat4(rot, state->rotation_matrix);
-    glm_scale_make(state->scale_matrix, scale);
+    glm_vec3_copy(pos, state->position);
+    glm_vec3_copy(scale, state->scale);
+    glm_quat_copy(rot, state->rotation);
+
+    //glm_translate_make(state->position_matrix, pos);
+    //glm_quat_mat4(rot, state->rotation_matrix);
+    //glm_scale_make(state->scale_matrix, scale);
 }
 
 void
@@ -232,9 +236,10 @@ skm_arm_playback_apply(struct skm_armature_anim_playback *playback) {
     struct skeletal_mesh *skm = playback->anim->skm;
 
     for(size_t i = 0; i < skm->bone_count; ++i) {
-        glm_mat4_copy(playback->state[i].scale_matrix, skm->bone_local_pose[i]);
-        glm_mat4_mul(playback->state[i].rotation_matrix, skm->bone_local_pose[i], skm->bone_local_pose[i]);
-        glm_mat4_mul(playback->state[i].position_matrix, skm->bone_local_pose[i], skm->bone_local_pose[i]);
+        // TODO revisit
+        //glm_mat4_copy(playback->state[i].scale_matrix, skm->bone_local_pose[i]);
+        //glm_mat4_mul(playback->state[i].rotation_matrix, skm->bone_local_pose[i], skm->bone_local_pose[i]);
+        //glm_mat4_mul(playback->state[i].position_matrix, skm->bone_local_pose[i], skm->bone_local_pose[i]);
     }
 }
 

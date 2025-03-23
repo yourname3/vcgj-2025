@@ -65,12 +65,16 @@ struct skm_arm_anim_bone_playback {
     size_t scale_idx;
     size_t rotation_idx;
 
+    vec3 position;
+    vec3 scale;
+    versor rotation;
+
     // Just store the various matrices directly in our playback state. That way,
     // for any channel with only a single key, we can simply never update the
     // matrix.
-    mat4 position_matrix;
-    mat4 scale_matrix;
-    mat4 rotation_matrix;
+   // mat4 position_matrix;
+   // mat4 scale_matrix;
+    //mat4 rotation_matrix;
 };
 
 struct skm_armature_anim_playback {

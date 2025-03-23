@@ -17,6 +17,12 @@ struct skeletal_mesh player_mesh = {0};
 struct skm_armature_anim player_walk_anim = {0};
 struct skm_armature_anim_playback player_walk_playback = {0};
 
+struct skm_armature_anim player_idle_anim = {0};
+struct skm_armature_anim_playback player_idle_playback = {0};
+
+struct skm_armature_anim player_jump_anim = {0};
+struct skm_armature_anim_playback player_jump_playback = {0};
+
 struct skeletal_mesh hay_mesh = {0};
 
 // Notes to self:
@@ -298,8 +304,8 @@ init() {
         .num_skm = 1,
         .got_skm = 0,
 
-        .skm_arm_anim = (struct skm_armature_anim*[]){ &player_walk_anim },
-        .num_skm_arm_anim = 1,
+        .skm_arm_anim = (struct skm_armature_anim*[]){ &player_idle_anim, &player_jump_anim, &player_walk_anim },
+        .num_skm_arm_anim = 3,
         .got_skm_arm_anim = 0,
     };
 
@@ -317,6 +323,8 @@ init() {
     load_model("blender/hay.glb", &hay_id);
 
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
+    skm_arm_playback_init(&player_idle_playback, &player_idle_anim);
+    skm_arm_playback_init(&player_jump_playback, &player_jump_anim);
 
     player_mesh.shader = skel_pbr.self;
     skm_gl_init(&player_mesh);
@@ -394,9 +402,33 @@ physics_player(double dt) {
     phys_slide_motion_solver(player.velocity, player.velocity, &player.obj, margin, dt);
 }
 
+float anim_transition_blend = 1.0;
+struct skm_armature_anim_playback *anim_prev = &player_idle_playback;
+struct skm_armature_anim_playback *anim_cur  = &player_idle_playback;
+
+void
+animate_player(double dt) {
+    struct skm_armature_anim_playback *next = &player_idle_playback;
+
+    if(fabs(player.velocity[0]) > 1) {
+        next = &player_walk_playback;
+    }
+    if(fabs(player.velocity[1]) > 0.3 || !player.obj.on_floor) {
+        next = &player_jump_playback;
+    }
+
+    anim_transition_blend += (1.0 - anim_transition_blend) * 0.1;
+    if(next != anim_cur) {
+        anim_prev = anim_cur;
+        anim_cur = next;
+        anim_transition_blend = 0.0;
+    }
+}
+
 void
 tick_player(double dt) {
     physics_player(dt);
+    animate_player(dt);
 
     // Reset the player's matrix.
     glm_mat4_identity(player.model_matrix);
@@ -421,15 +453,69 @@ tick_player(double dt) {
     pass_vp();
 }
 
+// void
+// get_single_anim_bone(mat4 out, struct skm_armature_anim_playback *playback, size_t i) {
+//     glm_mat4_copy(playback->state[i].scale_matrix, out);
+//     glm_mat4_mul(playback->state[i].rotation_matrix, out, out);
+//     glm_mat4_mul(playback->state[i].position_matrix, out, out);
+// }
+
+
+void
+apply_playbacks() {
+    struct skeletal_mesh *skm = &player_mesh;
+
+    struct skm_armature_anim_playback *anim1 = anim_prev;
+    struct skm_armature_anim_playback *anim2 = anim_cur;
+    float blend = anim_transition_blend;
+
+    for(size_t i = 0; i < skm->bone_count; ++i) {
+        mat4 translate_matrix;
+        mat4 rotate_matrix;
+        mat4 scale_matrix;
+
+        vec3 pos;
+        versor rot;
+        vec3 scale;
+
+        glm_vec3_lerp(anim1->state[i].position, anim2->state[i].position, blend, pos);
+        glm_vec3_lerp(anim1->state[i].scale, anim2->state[i].scale, blend, scale);
+        glm_quat_slerp(anim1->state[i].rotation, anim2->state[i].rotation, blend, rot);
+
+        glm_translate_make(translate_matrix, pos);
+        glm_quat_mat4(rot, rotate_matrix);
+        glm_scale_make(scale_matrix, scale);
+
+        glm_mat4_copy(scale_matrix, skm->bone_local_pose[i]);
+        glm_mat4_mul(rotate_matrix, skm->bone_local_pose[i], skm->bone_local_pose[i]);
+        glm_mat4_mul(translate_matrix, skm->bone_local_pose[i], skm->bone_local_pose[i]);
+    }
+}
+
 void
 tick(double dt) {
     tick_player(dt);
 
-    skm_arm_playback_apply(&player_walk_playback);
+    //skm_arm_playback_apply(&player_walk_playback);
+    //skm_arm_playback_apply(&player_idle_playback);
+    //skm_arm_playback_apply(&player_jump_playback);
+    apply_playbacks();
+    
+    // compute previous frame?
     skm_compute_matrices(&player_mesh, player.model_matrix);
+
+
     skm_arm_playback_step(&player_walk_playback, dt);
     if(player_walk_playback.time >= 1.25) {
         skm_arm_playback_seek(&player_walk_playback, player_walk_playback.time - 1.25);
+    }
+    skm_arm_playback_step(&player_idle_playback, dt);
+    if(player_idle_playback.time >= 1.25) {
+        skm_arm_playback_seek(&player_idle_playback, player_idle_playback.time - 1.25);
+    }
+    skm_arm_playback_step(&player_jump_playback, dt);
+    if(player_jump_playback.time >= 1.25) {
+        skm_arm_playback_seek(&player_jump_playback, player_jump_playback.time - 1.25);
     }
 
     // The world-space position of each bone should be something like:
