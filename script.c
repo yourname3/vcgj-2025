@@ -706,7 +706,7 @@ apply_playbacks() {
 void
 tick_carrots(double dt) {
     for(size_t i = 0; i < carrot_count; ++i) {
-        carrots[i].rotation += dt;
+        carrots[i].rotation += dt * 3.0;
         if(carrots[i].rotation > 6.28) {
             carrots[i].rotation -= 6.28;
         }
