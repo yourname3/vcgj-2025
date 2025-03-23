@@ -30,6 +30,7 @@ struct skeletal_mesh hay_mesh = {0};
 struct skeletal_mesh carrot_mesh = {0};
 
 Mix_Chunk *sound_chomp;
+Mix_Chunk *sound_boing;
 
 struct carrot {
     vec2 position;
@@ -435,6 +436,7 @@ init() {
     }
 
     sound_chomp = Mix_LoadWAV("sounds/chomp.wav");
+    sound_boing = Mix_LoadWAV("sounds/boing.wav");
 
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
     skm_arm_playback_init(&player_idle_playback, &player_idle_anim);
@@ -532,6 +534,7 @@ physics_player(double dt) {
     if(act_just_pressed(&act_jump) && player.obj.on_floor) {
         // jump impulse
         player.velocity[1] = 19.0f;
+        Mix_PlayChannel(-1, sound_boing, 0);
     }
 
     const float margin = 1.0 / 65536.0;
