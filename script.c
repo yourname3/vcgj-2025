@@ -46,7 +46,7 @@ struct carrot {
     bool eaten;
 };
 
-size_t carrot_count = 1;
+size_t carrot_count = 0;
 size_t got_carrot_count = 0;
 
 struct carrot carrots[256] = {0}; 
