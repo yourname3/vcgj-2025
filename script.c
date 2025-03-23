@@ -27,6 +27,8 @@ struct skm_armature_anim_playback player_jump_playback = {0};
 
 struct skeletal_mesh hay_mesh = {0};
 
+struct skeletal_mesh carrot_mesh = {0};
+
 int
 sign_of(float f) {
     if (f < 0) return -1;
@@ -86,6 +88,7 @@ struct {
 
 GLuint player_tex = 0;
 GLuint hay_tex = 0;
+GLuint carrot_tex = 0;
 
 // projection matrix
 static mat4 p_matrix;
@@ -368,11 +371,27 @@ init() {
         .got_texture = 0,
     };
 
+    struct import_data carrot_id = {
+        .skm = (struct skeletal_mesh*[]){ &carrot_mesh },
+        .num_skm = 1,
+        .got_skm = 0,
+
+        .skm_arm_anim = NULL,
+        .num_skm_arm_anim = 0,
+        .got_skm_arm_anim = 0,
+
+        .texture = (GLuint[]) { 0 },
+        .num_texture = 1,
+        .got_texture = 0,
+    };
+
     load_model("blender/horse.glb", &player_id);
     load_model("blender/hay.glb", &hay_id);
+    load_model("blender/carrot.glb", &carrot_id);
 
     player_tex = player_id.texture[0];
     hay_tex = hay_id.texture[0];
+    carrot_tex = carrot_id.texture[0];
 
     game_music = Mix_LoadMUS("music.ogg");
     SDL_Log("music error: %s", SDL_GetError());
@@ -387,6 +406,8 @@ init() {
 
     player_mesh.shader = skel_pbr.self;
     skm_gl_init(&player_mesh);
+
+    skm_gl_init(&carrot_mesh);
 
     REPORT(glUseProgram(skel_pbr.self));
     REPORT(glUniform1f(skel_pbr.skeleton_count, (float)player_mesh.bone_count));
@@ -723,7 +744,7 @@ tick(double dt) {
 void
 render() {
     REPORT(glUseProgram(skel_pbr.self));
-    glUniform1f(skel_pbr.metallic, 0.2);
+    glUniform1f(skel_pbr.metallic, 0.1);
     glUniform1f(skel_pbr.perceptual_roughness, 0.3);
     glUniform3f(skel_pbr.base_color, 1.0, 1.0, 1.0); // multiplied by texture
 
@@ -733,6 +754,41 @@ render() {
     REPORT(glUniform1i(skel_pbr.albedo, 0));
 
     skm_gl_draw(&player_mesh);
+
+    REPORT(glUseProgram(static_pbr.self));
+    glUniform1f(static_pbr.metallic, 0.3);
+    glUniform1f(static_pbr.perceptual_roughness, 0.7);
+    //glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);
+    glUniform3f(static_pbr.base_color, 1.0, 1.0, 1.0);
+
+    REPORT(glActiveTexture(GL_TEXTURE0));
+    REPORT(glBindTexture(GL_TEXTURE_2D, carrot_tex));
+
+    REPORT(glUniform1i(static_pbr.albedo, 0));
+
+    REPORT(glBindBuffer(GL_ARRAY_BUFFER, carrot_mesh.array_buf));
+    REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, carrot_mesh.element_buf));
+
+    REPORT(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)0));
+    REPORT(glEnableVertexAttribArray(0));
+
+    REPORT(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 3)));
+    REPORT(glEnableVertexAttribArray(1));
+
+    REPORT(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 6)));
+    REPORT(glEnableVertexAttribArray(2));
+
+    REPORT(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 10)));
+    REPORT(glEnableVertexAttribArray(3));
+
+    REPORT(glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 14)));
+    REPORT(glEnableVertexAttribArray(4));
+
+    REPORT(glDrawElements(GL_TRIANGLES, carrot_mesh.triangles_count, GL_UNSIGNED_INT, 0));
+
+
+
+
 
     REPORT(glBindBuffer(GL_ARRAY_BUFFER, level_mesh.array_buf));
     REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, level_mesh.element_buf));
@@ -759,5 +815,5 @@ render() {
 
     REPORT(glUniform1i(static_pbr.albedo, 0));
 
-    REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
+    //REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
 }
