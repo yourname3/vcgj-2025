@@ -449,7 +449,7 @@ physics_player(double dt) {
         h_vel = 1;
     }
 
-    player.velocity[0] = h_vel * 4.0f;
+    player.velocity[0] = h_vel * 1.2f;
 
     if(act_just_pressed(&act_jump) && player.obj.on_floor) {
         // jump impulse
@@ -598,10 +598,10 @@ tick(double dt) {
     const float anim_boundary = anim_start_seek + anim_loop_length;
 
 
-    const double thing = 1.158176;
+    const double anim_ref_vel = 1.157943 / anim_loop_length; 
     double anim_step = 1.0 * dt;
     if(anim_cur == &player_walk_playback) {
-        anim_step = (fabs(player.velocity[0]) / thing) * dt;
+        anim_step = (fabs(player.velocity[0]) / anim_ref_vel) * dt;
     }
 
     
