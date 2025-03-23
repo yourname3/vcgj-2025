@@ -593,18 +593,21 @@ tick(double dt) {
     // compute previous frame?
     skm_compute_matrices(&player_mesh, player.model_matrix);
 
+    const float anim_loop_length = 60.0 / 24.0;
+    const float anim_start_seek = 0.0;
+    const float anim_boundary = anim_start_seek + anim_loop_length;
 
     skm_arm_playback_step(&player_walk_playback, dt);
-    if(player_walk_playback.time >= 1.25) {
-        skm_arm_playback_seek(&player_walk_playback, player_walk_playback.time - 1.25);
+    if(player_walk_playback.time >= anim_boundary) {
+        skm_arm_playback_seek(&player_walk_playback, player_walk_playback.time - anim_loop_length);
     }
     skm_arm_playback_step(&player_idle_playback, dt);
-    if(player_idle_playback.time >= 1.25) {
-        skm_arm_playback_seek(&player_idle_playback, player_idle_playback.time - 1.25);
+    if(player_idle_playback.time >= anim_boundary) {
+        skm_arm_playback_seek(&player_idle_playback, player_idle_playback.time - anim_loop_length);
     }
     skm_arm_playback_step(&player_jump_playback, dt);
-    if(player_jump_playback.time >= 1.25) {
-        skm_arm_playback_seek(&player_jump_playback, player_jump_playback.time - 1.25);
+    if(player_jump_playback.time >= anim_boundary) {
+        skm_arm_playback_seek(&player_jump_playback, player_jump_playback.time - anim_loop_length);
     }
 
     // The world-space position of each bone should be something like:
