@@ -144,9 +144,9 @@ main_loop(void) {
     ticks_push(delta);
 }
 
-#define APP_TITLE "app title"
+#define APP_TITLE "ben's bales"
 #define APP_VERSION "1.0"
-#define APP_IDENTIFIER "com.example.app"
+#define APP_IDENTIFIER "io.itch.some-games-by-bee.bens-bales"
 
 int
 main(int argc, char **argv) {
@@ -179,7 +179,7 @@ main(int argc, char **argv) {
     // Compatibility renderer needed for things like no VAO
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
-    window = SDL_CreateWindow(APP_TITLE, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow(APP_TITLE, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
     if(!window) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return 1;

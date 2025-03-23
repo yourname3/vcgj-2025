@@ -20,6 +20,13 @@ SHADERS=\
 	shader/static-frag.glsl \
 	shader/static-vert.glsl 
 
+STATICLIBS=\
+	-lmingw32 -lSDL3 -lSDL3_mixer -lopengl32 -lassimp -lz \
+	-static -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm \
+	-limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lsetupapi \
+	-lssp \
+	-lshlwapi -mwindows 
+
 CFLAGS=-Wall -g 
 
 .PHONY: all web win clean
@@ -56,6 +63,13 @@ bin/win/SDL3_mixer.dll: ../SDL_mixer/build-win/SDL3_mixer.dll
 
 bin/win/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/win/ bin/win/SDL3.dll bin/win/SDL3_mixer.dll
 	g++ $^ -o $@ -L../SDL/build-win/ -L../SDL_mixer/build-win/ -L../assimp/build-win/lib -lSDL3_mixer -lSDL3 -lassimp -lz -Wl,--gc-sections
+
+bin/dist/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/dist/
+	mkdir -p bin/dist/blender
+	cp blender/horse.glb bin/dist/blender
+	cp blender/hay.glb bin/dist/blender
+	cp music.ogg bin/dist
+	g++ $^ -o $@ -L../SDL/build-win/ -L../SDL_mixer/build-win/ -L../assimp/build-win/lib $(STATICLIBS) -Wl,--gc-sections
 
 obj/win/%.o: %.c | $(addprefix obj/win/,$(dir $(SRCS))) obj/shader.c
 	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2 -I. -ffunction-sections
