@@ -502,6 +502,9 @@ struct action act_jump = {
     .code = SDLK_SPACE
 };
 
+float max_walk_vel = 0.8f;
+float max_jump_vel = 4.8f;
+
 void
 physics_player(double dt) {
     vec2 gravity = { 0, -36 * dt };
@@ -515,7 +518,7 @@ physics_player(double dt) {
         h_vel = 1;
     }
 
-    float max_vel = 1.2f;
+    float max_vel = max_walk_vel;
     if(!player.obj.on_floor) {
         // move fast in midair
         max_vel = 4.8f;
@@ -731,6 +734,9 @@ void
 eat_carrot() {
     // TODO: Increase player max speed?
     Mix_PlayChannel(-1, sound_chomp, 0);
+
+    max_walk_vel += 0.1f;
+    max_jump_vel += 0.2f;
 }
 
 void
