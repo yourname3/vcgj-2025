@@ -51,6 +51,7 @@ size_t got_carrot_count = 0;
 
 bool jump_unlocked = false;
 float jump_message_timer = 0.0;
+float win_message_timer = 0.0;
 
 struct carrot carrots[256] = {0}; 
 // {
@@ -777,6 +778,9 @@ eat_carrot() {
         jump_unlocked = true;
         jump_message_timer = 2.0;
     }
+    if(got_carrot_count == carrot_count) {
+        win_message_timer = 4.0;
+    }
 }
 
 void
@@ -1019,10 +1023,15 @@ ui(struct nk_context *ctx, int win_width, int win_height) {
 
     ui_theme(ctx);
 
-    if(jump_message_timer > 0.0) {
+    bool show_powerup = (jump_message_timer > 0.0) || (win_message_timer > 0.0);
+
+
+    if(show_powerup) {
         if(nk_begin(ctx, "powerup", nk_rect(middle_box_x, middle_box_y, mwidth, mheight), NK_WINDOW_NO_SCROLLBAR)) {
             nk_layout_row_dynamic(ctx, 60, 1);
-            nk_label(ctx, "you can now jump!", NK_TEXT_CENTERED);
+            const char *message = "you can now jump!";
+            if(win_message_timer > 0.0) message = "you win!!";
+            nk_label(ctx, message, NK_TEXT_CENTERED);
         }
         nk_end(ctx);
     }
