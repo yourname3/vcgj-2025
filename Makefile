@@ -1,6 +1,7 @@
 SRCS=\
 	script.c \
 	physics.c \
+	nuklear.c \
 	engine/main.c \
 	engine/model.c \
 	engine/shader.c \

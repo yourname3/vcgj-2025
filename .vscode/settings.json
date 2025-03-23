@@ -17,6 +17,8 @@
         "serialize_skm.h": "c",
         "skeletal_mesh.h": "c",
         "serialize.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "nuklear.h": "c",
+        "nuklear_sdl3_gl3.h": "c"
     }
 }
