@@ -73,6 +73,7 @@ bin/dist/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/dist/
 	cp sounds/chomp.wav bin/dist/sounds
 	cp blender/horse.glb bin/dist/blender
 	cp blender/hay.glb bin/dist/blender
+	cp blender/carrot.glb bin/dist/blender
 	cp sounds/music.ogg bin/dist/sounds
 	g++ $^ -o $@ -L../SDL/build-win/ -L../SDL_mixer/build-win/ -L../assimp/build-win/lib $(STATICLIBS) -Wl,--gc-sections
 
