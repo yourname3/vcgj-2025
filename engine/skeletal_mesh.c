@@ -311,9 +311,24 @@ skm_gl_upload_bone_tform(struct skeletal_mesh *skm) {
     // on desktop, that both used RGBA32F.
     //
     // Other option is to try to transform the texture data into the shader.
+    //
+    // Just kidding! I think WebGL doesn't (?) support RGBA32F.
+    // So.
+    // To do things correctly, we will need to do the following:
+    // 1. Have two channels for each number.
+    // 2. In the shader, compute (channel1 - channel2) * scaling
+    // 3. Upload that data.
+    //
+    // Or maybe there's some way to do it through a GL_UNSIGNED_INT or something.
+    // Will have to investigate further.
+
+    GLint internal_format = GL_RGBA;
+    #ifndef __EMSCRIPTEN__
+    internal_format = GL_RGBA32F;
+    #endif
 
     REPORT(glTexImage2D(GL_TEXTURE_2D, 0,
-        GL_RGBA32F,
+        internal_format,
         // width of 4 px, height of bone count
         4, (GLsizei)skm->bone_count,
         0,

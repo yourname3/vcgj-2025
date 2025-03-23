@@ -21,7 +21,9 @@ struct nk_font *game_font;
 #include <emscripten.h>
 #endif
 
+#ifndef __EMSCRIPTEN__ // this really sh ould be ifdef windows or something
 __attribute__((dllexport)) uint32_t NvOptimusEnablement = 0x00000001;  
+#endif
 
 extern void init();
 extern void tick(double dt);
@@ -220,8 +222,11 @@ main(int argc, char **argv) {
         return 1;
     }
 
+    #ifndef __EMSCRIPTEN__
+    // Load GL with GLAD unless we're on web.
     gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
     SDL_Log("OpenGL version: %d.%d", GLVersion.major, GLVersion.minor);
+    #endif
 
     nk_ctx = nk_sdl_init(window);
     struct nk_font_atlas *atlas;

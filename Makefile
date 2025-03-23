@@ -1,7 +1,6 @@
 SRCS=\
 	script.c \
 	physics.c \
-	nuklear.c \
 	engine/main.c \
 	engine/model.c \
 	engine/shader.c \
@@ -54,7 +53,7 @@ obj/tool/%.o: %.c | $(addprefix obj/tool/,$(dir $(TOOL_SHADER2C)))
 	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2
 
 bin/web/$(GAMENAME).html: $(SRCS:%.c=obj/web/%.o) | bin/web/
-	emcc $^ -o $@ -L../SDL/build-emcc/ -lSDL3
+	emcc $^ -o $@ -L../SDL/build-emcc/ -lSDL3_mixer -lSDL3 -lassimp -Wl,--gc-sections -L../SDL_mixer/build-web -L../assimp/build-web/lib
 
 bin/win/SDL3.dll: ../SDL/build-win/SDL3.dll
 	cp ../SDL/build-win/SDL3.dll bin/win/
@@ -81,7 +80,7 @@ obj/win/%.o: %.c | $(addprefix obj/win/,$(dir $(SRCS))) obj/shader.c
 	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2 -I. -ffunction-sections -DFAST_MODE
 
 obj/web/%.o: %.c | $(addprefix obj/web/,$(dir $(SRCS))) obj/shader.c
-	emcc $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-web/include -Iglad/include -I. -O2 -DFAST_MODE -I../cglm/include
+	emcc $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-web/include -Iglad/include -I. -O2 -DFAST_MODE -I../cglm/include 
 
 %/:
 	mkdir -p $@
