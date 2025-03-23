@@ -287,7 +287,7 @@ window_resized_hook(int width, int height) {
     pass_vp();
 }
 
-#define DIST_FROM_CAM 12
+#define DIST_FROM_CAM 8
 
 void init_player();
 
