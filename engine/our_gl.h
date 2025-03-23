@@ -49,11 +49,18 @@ ourgl_report(const char *file, int lineno, const char *line) {
     }
 }
 
+#ifdef FAST_MODE
+#define REPORT(...) __VA_ARGS__
+
+#else
+
 #define REPORT(...) \
 __VA_ARGS__ ; \
 ourgl_report(__FILE__, __LINE__, #__VA_ARGS__) 
 
 #define REPORT_OR_ZERO(...) __VA_ARGS__ ; \
 if(ourgl_report(__FILE__, __LINE__, #__VA_ARGS__)) { return 0; }
+
+#endif
 
 #endif

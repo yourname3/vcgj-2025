@@ -73,10 +73,10 @@ bin/dist/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/dist/
 	g++ $^ -o $@ -L../SDL/build-win/ -L../SDL_mixer/build-win/ -L../assimp/build-win/lib $(STATICLIBS) -Wl,--gc-sections
 
 obj/win/%.o: %.c | $(addprefix obj/win/,$(dir $(SRCS))) obj/shader.c
-	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2 -I. -ffunction-sections
+	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2 -I. -ffunction-sections -DFAST_MODE
 
 obj/web/%.o: %.c | $(addprefix obj/web/,$(dir $(SRCS))) obj/shader.c
-	emcc $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-web/include -Iglad/include -I.
+	emcc $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-web/include -Iglad/include -I. -O2 -DFAST_MODE
 
 %/:
 	mkdir -p $@
