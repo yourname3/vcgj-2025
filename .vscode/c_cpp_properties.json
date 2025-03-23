@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/../SDL/include",
+                "${workspaceFolder}/../SDL_mixer/include",
                 "${workspaceFolder}/../assimp/include",
                 "${workspaceFolder}/../assimp/build-win/include",
                 "${workspaceFolder}/glad/include",

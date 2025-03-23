@@ -13,6 +13,8 @@
 
 #include <cglm/cglm.h>
 
+#include <SDL3_mixer/SDL_mixer.h>
+
 struct skeletal_mesh player_mesh = {0};
 struct skm_armature_anim player_walk_anim = {0};
 struct skm_armature_anim_playback player_walk_playback = {0};
@@ -261,6 +263,8 @@ window_resized_hook(int width, int height) {
 
 void init_player();
 
+static Mix_Music *game_music = NULL;
+
 void
 init() {
     static_pbr.self = ourgl_compile_shader(static_vert_src, skel_frag_src);
@@ -321,6 +325,11 @@ init() {
 
     load_model("blender/player.glb", &player_id);
     load_model("blender/hay.glb", &hay_id);
+
+    game_music = Mix_LoadMUS("music.ogg");
+    SDL_Log("music error: %s", SDL_GetError());
+    assert(game_music);
+    Mix_PlayMusic(game_music, -1);
 
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
     skm_arm_playback_init(&player_idle_playback, &player_idle_anim);

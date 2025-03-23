@@ -50,11 +50,14 @@ bin/web/$(GAMENAME).html: $(SRCS:%.c=obj/web/%.o) | bin/web/
 bin/win/SDL3.dll: ../SDL/build-win/SDL3.dll
 	cp ../SDL/build-win/SDL3.dll bin/win/
 
-bin/win/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/win/ bin/win/SDL3.dll
-	g++ $^ -o $@ -L../SDL/build-win/ -L../assimp/build-win/lib -lSDL3 -lassimp -lz -Wl,--gc-sections
+bin/win/SDL3_mixer.dll: ../SDL_mixer/build-win/SDL3_mixer.dll
+	cp ../SDL_mixer/build-win/SDL3_mixer.dll bin/win/
+
+bin/win/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/win/ bin/win/SDL3.dll bin/win/SDL3_mixer.dll
+	g++ $^ -o $@ -L../SDL/build-win/ -L../SDL_mixer/build-win/ -L../assimp/build-win/lib -lSDL3_mixer -lSDL3 -lassimp -lz -Wl,--gc-sections
 
 obj/win/%.o: %.c | $(addprefix obj/win/,$(dir $(SRCS))) obj/shader.c
-	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2 -I. -ffunction-sections
+	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2 -I. -ffunction-sections
 
 obj/web/%.o: %.c | $(addprefix obj/web/,$(dir $(SRCS))) obj/shader.c
 	emcc $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-web/include -Iglad/include -I.

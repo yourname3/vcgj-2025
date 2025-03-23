@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <SDL3_mixer/SDL_mixer.h>
+
 #include "our_gl.h"
 #include "../actions.h"
 
@@ -152,8 +154,24 @@ main(int argc, char **argv) {
 
     SDL_Log("Initializing.");
 
-    if(!SDL_Init(SDL_INIT_VIDEO)) {
+    if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         SDL_Log("Couldn't initial SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    MIX_InitFlags audio = Mix_Init(MIX_INIT_OGG);
+    if(!(audio & MIX_INIT_OGG)) {
+        SDL_Log("Couldn't initialize OGG format: %s", SDL_GetError());
+        return 1;
+    }
+    else {
+        SDL_Log("Initialized OGG.");
+    }
+
+    if(!Mix_OpenAudio(0, NULL)) {
+        // TODO: Probably keep going if we can't open sound, just disable the
+        // music loading.
+        SDL_Log("Couldn't initialize sound: %s", SDL_GetError());
         return 1;
     }
 
