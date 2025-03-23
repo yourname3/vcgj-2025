@@ -44,15 +44,15 @@ map_set(struct map *map, int32_t x, int32_t y, uint8_t value) {
 // we iterate through the map. So 5/6th blocks are just rejected.
 
 uint8_t map0_data[] = {
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    1, 0, 0, 0, 0, 0, 0, 1,
-    1, 1, 0, 0, 0, 0, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 };
 
 struct map map0 = {
-    .width = 8,
+    .width = 21,
     .height = 5,
 
     .player_x = 5,
@@ -96,18 +96,18 @@ obj_get_normal_from_overlap(vec2 normal_out, struct phys_obj *self, struct phys_
     bool x_valid = (other_left_side == other_right_side);
     bool y_valid = (other_top_side == other_bottom_side);
 
-    // If they're both valid, there's no overlap.
-    if(x_valid && y_valid) return false;
-
-    if(x_valid) {
-        normal_out[0] = (normal_out[0] > 0) ? 1 : -1;
-        normal_out[1] = 0;
-        return true;
-    }
+    // If they're both valid,prefer y????
+    //if(x_valid && y_valid) return false;
 
     if(y_valid) {
         normal_out[1] = (normal_out[1] > 0) ? 1 : -1;
         normal_out[0] = 0;
+        return true;
+    }
+
+    if(x_valid) {
+        normal_out[0] = (normal_out[0] > 0) ? 1 : -1;
+        normal_out[1] = 0;
         return true;
     }
 
@@ -151,16 +151,17 @@ struct overlap
 map_get_overlap(struct map *map, struct phys_obj *obj) {
     struct overlap result = { .is_overlap = false, .collision = NULL };
     //SDL_Log("check tl");
-    result = map_get_overlap_at_point(map, obj_left(obj), obj_top(obj));
+    const float m = 0;
+    result = map_get_overlap_at_point(map, obj_left(obj) + m, obj_top(obj) - m);
     if(result.is_overlap) return result;
     //SDL_Log("check bl");
-    result = map_get_overlap_at_point(map, obj_left(obj), obj_bottom(obj));
+    result = map_get_overlap_at_point(map, obj_left(obj) + m, obj_bottom(obj) + m);
     if(result.is_overlap) return result;
     //SDL_Log("check tr");
-    result = map_get_overlap_at_point(map, obj_right(obj), obj_top(obj));
+    result = map_get_overlap_at_point(map, obj_right(obj) - m, obj_top(obj) - m);
     if(result.is_overlap) return result;
     //SDL_Log("check br");
-    result = map_get_overlap_at_point(map, obj_right(obj), obj_bottom(obj));
+    result = map_get_overlap_at_point(map, obj_right(obj) - m, obj_bottom(obj) + m);
     if(result.is_overlap) return result;
 
     return result;
@@ -215,7 +216,7 @@ vec2_project(vec2 a, vec2 b, vec2 out) {
 
 void
 phys_slide_motion_solver(vec2 vel, vec2 vel_out, struct phys_obj *obj, float margin, float dt) {
-    int max_slide_count = 3;
+    int max_slide_count = 2;
 
     vec2 total_vel;
     glm_vec2_scale(vel, dt, total_vel);
