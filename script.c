@@ -330,7 +330,7 @@ init() {
     SDL_Log("music error: %s", SDL_GetError());
     //assert(game_music);
     if(game_music != NULL) {
-        Mix_PlayMusic(game_music, -1);
+        //Mix_PlayMusic(game_music, -1);
     }
 
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
