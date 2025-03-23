@@ -490,17 +490,17 @@ void
 animate_player(double dt) {
     struct skm_armature_anim_playback *next = &player_idle_playback;
 
-    if(fabs(player.velocity[0]) > 1) {
+    if(fabs(player.velocity[0]) > 0.2) {
         next = &player_walk_playback;
     }
-    if(fabs(player.velocity[1]) > 0.3 || !player.obj.on_floor) {
+    if(fabs(player.velocity[1]) > 0.1 || !player.obj.on_floor) {
         next = &player_jump_playback;
     }
 
-    if(player.velocity[0] > 2) {
+    if(player.velocity[0] > 0.2) {
         player_rot_y_target = 3.14159265 / 2.0;
     }
-    if(player.velocity[0] < -2) {
+    if(player.velocity[0] < -0.2) {
         player_rot_y_target = -3.14159265 / 2.0;
     }
     step(&player_rot_y, player_rot_y_target, 3.14 * dt * 3.0);
