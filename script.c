@@ -640,7 +640,10 @@ tick_player(double dt) {
     glm_translated(v_matrix, (vec3){ 0, 0, DIST_FROM_CAM });
 
     mat4 help;
+    // normal version:
     glm_rotate_make(help, -0.3, (vec3) { 1.0, 0.0, 0.0 });
+    // thumbnail edition:
+    //glm_rotate_make(help, 3.14/4, (vec3){ 0.0, 1.0, 0.0 });
     glm_mul(help, v_matrix, v_matrix);
 
 
