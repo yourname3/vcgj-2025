@@ -13,6 +13,8 @@
 
 #include <cglm/cglm.h>
 
+#include "nuklear-cfg.h"
+
 #include <SDL3_mixer/SDL_mixer.h>
 
 struct skeletal_mesh player_mesh = {0};
@@ -939,4 +941,9 @@ render() {
     REPORT(glUniform1i(static_pbr.albedo, 0));
 
     REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
+}
+
+void
+ui(struct nk_context *ctx, int width, int height) {
+
 }

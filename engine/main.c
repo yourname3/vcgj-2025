@@ -9,6 +9,11 @@
 #include "our_gl.h"
 #include "../actions.h"
 
+#include "../nuklear-cfg.h"
+#include "../nuklear_sdl3_gl3.h"
+
+static struct nk_context *nk_ctx;
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -18,6 +23,7 @@ __attribute__((dllexport)) uint32_t NvOptimusEnablement = 0x00000001;
 extern void init();
 extern void tick(double dt);
 extern void render();
+extern void ui(struct nk_context *ctx, int width, int height);
 
 static SDL_Window *window = NULL;
 SDL_GLContext gl_ctx = NULL;
@@ -79,6 +85,7 @@ act_just_pressed(struct action *act) {
 void
 main_loop(void) {
     SDL_Event event;
+    nk_input_begin(nk_ctx);
     while(SDL_PollEvent(&event)) {
         switch(event.type) {
             case SDL_EVENT_QUIT:
@@ -98,7 +105,9 @@ main_loop(void) {
                 act_update(&act_jump, event.key.key, false);
                 break;
         }
+        nk_sdl_handle_event(&event);
     }
+    nk_input_end(nk_ctx);
 
 #ifdef __EMSCRIPTEN__
     if(quit) {
@@ -132,7 +141,15 @@ main_loop(void) {
         time_in_future -= step;
     }
 
+    REPORT(glEnable(GL_CULL_FACE));
+    REPORT(glEnable(GL_DEPTH_TEST));
+
     render();
+    int width, height;
+ 
+	SDL_GetWindowSize(window, &width, &height);
+    ui(nk_ctx, width, height);
+    nk_sdl_render(NK_ANTI_ALIASING_ON, 512 * 1024, 128 * 1024);
     SDL_GL_SwapWindow(window);
 
     uint64_t next_ticks = SDL_GetPerformanceCounter();
@@ -176,6 +193,8 @@ main(int argc, char **argv) {
     }
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     // Compatibility renderer needed for things like no VAO
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
@@ -193,6 +212,11 @@ main(int argc, char **argv) {
 
     gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
     SDL_Log("OpenGL version: %d.%d", GLVersion.major, GLVersion.minor);
+
+    nk_ctx = nk_sdl_init(window);
+    struct nk_font_atlas *atlas;
+    nk_sdl_font_stash_begin(&atlas);
+    nk_sdl_font_stash_end();
 
     const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
     const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
