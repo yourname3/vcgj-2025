@@ -27,6 +27,13 @@ struct skm_armature_anim_playback player_jump_playback = {0};
 
 struct skeletal_mesh hay_mesh = {0};
 
+int
+sign_of(float f) {
+    if (f < 0) return -1;
+    if (f > 0) return 1;
+    return 0;
+}
+
 GLuint
 generate_null_texture() {
     GLuint tex;
@@ -449,11 +456,25 @@ physics_player(double dt) {
         h_vel = 1;
     }
 
-    player.velocity[0] = h_vel * 1.2f;
+    float max_vel = 1.2f;
+    if(!player.obj.on_floor) {
+        // move fast in midair
+        max_vel = 4.8f;
+    }
+
+    float target_vel = max_vel * h_vel;
+    float dif_from_target = target_vel - player.velocity[0];
+    float accel = 24.0f * sign_of(dif_from_target);
+    float accel_integrated = accel * dt;
+    if(fabs(accel_integrated) > fabs(dif_from_target)) {
+        accel_integrated = dif_from_target;
+    }
+
+    player.velocity[0] += accel_integrated;
 
     if(act_just_pressed(&act_jump) && player.obj.on_floor) {
         // jump impulse
-        player.velocity[1] = 22.0f;
+        player.velocity[1] = 19.0f;
     }
 
     const float margin = 1.0 / 65536.0;
@@ -466,13 +487,6 @@ struct skm_armature_anim_playback *anim_cur  = &player_idle_playback;
 
 float player_rot_y =  3.14159265 / 2.0;
 float player_rot_y_target =  3.14159265 / 2.0;
-
-int
-sign_of(float f) {
-    if (f < 0) return -1;
-    if (f > 0) return 1;
-    return 0;
-}
 
 void
 step(float *x, float target, float speed) {
@@ -631,11 +645,15 @@ apply_playbacks() {
         // oh. norm is very different from normalize for quaternions.
         glm_quat_normalize(rot);
 
+        // Hmm. We still have occasional jank. From the one frame I manged to
+        // capture, it didn't look like there was any scaling, but that the
+        // player model was facing entirely the wrong way. Weird..
+
         glm_translate_make(translate_matrix, pos);
         my_quat_mat4(rot, rotate_matrix);
         glm_scale_make(scale_matrix, scale);
 
-        if(fabs(glm_mat4_det(rotate_matrix)) < 0.5) {
+        if(fabs(glm_mat4_det(rotate_matrix)) < 0.8) {
             glm_mat4_identity(rotate_matrix);
             SDL_Log("bone = %llu", i);
             SDL_Log("rot0 = %f %f %f %f", anim1->state[i].rotation[0], anim1->state[i].rotation[1], anim1->state[i].rotation[2], anim1->state[i].rotation[3]);
