@@ -29,6 +29,8 @@ struct skeletal_mesh hay_mesh = {0};
 
 struct skeletal_mesh carrot_mesh = {0};
 
+Mix_Chunk *sound_chomp;
+
 struct carrot {
     vec2 position;
 
@@ -432,6 +434,8 @@ init() {
         Mix_PlayMusic(game_music, -1);
     }
 
+    sound_chomp = Mix_LoadWAV("sounds/chomp.wav");
+
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
     skm_arm_playback_init(&player_idle_playback, &player_idle_anim);
     skm_arm_playback_init(&player_jump_playback, &player_jump_anim);
@@ -723,6 +727,7 @@ apply_playbacks() {
 void
 eat_carrot() {
     // TODO: Increase player max speed?
+    Mix_PlayChannel(-1, sound_chomp, 0);
 }
 
 void
