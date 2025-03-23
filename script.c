@@ -464,8 +464,8 @@ float anim_transition_blend = 1.0;
 struct skm_armature_anim_playback *anim_prev = &player_idle_playback;
 struct skm_armature_anim_playback *anim_cur  = &player_idle_playback;
 
-float player_rot_y = 0.0;
-float player_rot_y_target = 0.0;
+float player_rot_y =  3.14159265 / 2.0;
+float player_rot_y_target =  3.14159265 / 2.0;
 
 int
 sign_of(float f) {
@@ -498,10 +498,10 @@ animate_player(double dt) {
     }
 
     if(player.velocity[0] > 2) {
-        player_rot_y_target = 0.0;
+        player_rot_y_target = 3.14159265 / 2.0;
     }
     if(player.velocity[0] < -2) {
-        player_rot_y_target = -3.14159265;
+        player_rot_y_target = -3.14159265 / 2.0;
     }
     step(&player_rot_y, player_rot_y_target, 3.14 * dt * 3.0);
 
