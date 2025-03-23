@@ -338,6 +338,8 @@ void init_player();
 
 static Mix_Music *game_music = NULL;
 
+const float anim_start_seek = 60.0 / 24.0;
+
 void
 init() {
     static_pbr.self = ourgl_compile_shader(static_vert_src, skel_frag_src);
@@ -459,6 +461,11 @@ init() {
     gen_level_mesh(&map0);
 
     null_texture = generate_null_texture();
+
+    // Initialize looping animations to the loop point.
+    skm_arm_playback_seek(&player_walk_playback, anim_start_seek);
+    skm_arm_playback_seek(&player_idle_playback, anim_start_seek);
+    skm_arm_playback_seek(&player_jump_playback, anim_start_seek);
 }
 
 #include <stdlib.h>
@@ -786,7 +793,7 @@ tick(double dt) {
     skm_compute_matrices(&player_mesh, player.model_matrix);
 
     const float anim_loop_length = 60.0 / 24.0;
-    const float anim_start_seek = 0.0;
+    
     const float anim_boundary = anim_start_seek + anim_loop_length;
 
 
