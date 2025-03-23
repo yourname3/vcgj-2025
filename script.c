@@ -49,6 +49,9 @@ struct carrot {
 size_t carrot_count = 0;
 size_t got_carrot_count = 0;
 
+bool jump_unlocked = false;
+float jump_message_timer = 0.0;
+
 struct carrot carrots[256] = {0}; 
 // {
 //     {
@@ -549,7 +552,7 @@ physics_player(double dt) {
 
     player.velocity[0] += accel_integrated;
 
-    if(act_just_pressed(&act_jump) && player.obj.on_floor) {
+    if(act_just_pressed(&act_jump) && player.obj.on_floor && jump_unlocked) {
         // jump impulse
         player.velocity[1] = 19.0f;
         Mix_PlayChannel(-1, sound_boing, 0);
@@ -768,6 +771,12 @@ eat_carrot() {
     max_jump_vel += 0.2f;
 
     got_carrot_count += 1;
+
+    if(got_carrot_count == 5) {
+        // Unlock jump.
+        jump_unlocked = true;
+        jump_message_timer = 2.0;
+    }
 }
 
 void
@@ -812,6 +821,8 @@ tick(double dt) {
     //skm_arm_playback_apply(&player_idle_playback);
     //skm_arm_playback_apply(&player_jump_playback);
     apply_playbacks();
+
+    if(jump_message_timer > 0.0) { jump_message_timer -= dt; }
     
     // compute previous frame?
     skm_compute_matrices(&player_mesh, player.model_matrix);
@@ -998,33 +1009,29 @@ ui(struct nk_context *ctx, int win_width, int win_height) {
     float width = 800;
 	float height = 60;
 
-	float x = 0; (win_width - width) / 2.0;
+	float x = 0; //(win_width - width) / 2.0;
 	float y = (win_height - height);
 
-	const char *desc_text = NULL;
+    float mwidth = 800;
+    float mheight = 60;
+    float middle_box_x = (win_width - mwidth) / 2.0;
+    float middle_box_y = (win_height - mheight) / 2.0;
 
     ui_theme(ctx);
 
+    if(jump_message_timer > 0.0) {
+        if(nk_begin(ctx, "powerup", nk_rect(middle_box_x, middle_box_y, mwidth, mheight), NK_WINDOW_NO_SCROLLBAR)) {
+            nk_layout_row_dynamic(ctx, 60, 1);
+            nk_label(ctx, "you can now jump!", NK_TEXT_CENTERED);
+        }
+        nk_end(ctx);
+    }
+
 	if(nk_begin(ctx, "ui", nk_rect(x, y, width, height), NK_WINDOW_NO_SCROLLBAR)) {
-		//nk_layout_row_static(ctx, 30, width / 4, 3);
 		nk_layout_row_dynamic(ctx, 60, 1);
         char buf[128] = {0};
         snprintf(buf, 128, "%zu/%zu carrots", got_carrot_count, carrot_count);
-        nk_label(ctx, buf, NK_LEFT);
-		// if(nk_widget_is_hovered(ctx)) desc_text = "More arrows";
-		// nk_button_label(ctx, "Extra Arrows");
-
-		// if(nk_widget_is_hovered(ctx)) desc_text = "You move the faster";
-		// nk_button_label(ctx, "Faster Movement");
-
-		// if(nk_widget_is_hovered(ctx)) desc_text = "Your pony is cooler";
-		// nk_button_label(ctx, "Cooler Pony");
-
-		// if(desc_text) {
-		// 	nk_layout_row_dynamic(ctx, 400, 1);
-		// 	nk_label_wrap(ctx, desc_text);
-		// }
-		
+        nk_label(ctx, buf, NK_TEXT_LEFT);
 	}
 	nk_end(ctx);
 }

@@ -135,13 +135,13 @@ main_loop(void) {
         time_in_future = step * 8;
     }
 
-    while(time_in_future > step) {
+    while(time_in_future > (step / 4)) { // let's run fast for playtesting.
         tick(dt_wanted);
         /* After each frame, update keys. TODO: Maybe re-check inputs for each tick? */
         act_tick(&act_left);
         act_tick(&act_right);
         act_tick(&act_jump);
-        time_in_future -= step;
+        time_in_future -= step / 4;
     }
 
     REPORT(glEnable(GL_CULL_FACE));
