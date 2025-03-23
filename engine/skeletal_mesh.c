@@ -176,7 +176,7 @@ skm_arm_bone_lerp_keys(struct skm_arm_anim_bone_playback *state, struct skm_arm_
     
 
     versor rot;
-    glm_quat_nlerp(q0->value, q1->value, t, rot);
+    glm_quat_slerp(q0->value, q1->value, t, rot);
 
     glm_vec3_copy(pos, state->position);
     glm_vec3_copy(scale, state->scale);

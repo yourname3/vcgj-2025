@@ -371,7 +371,7 @@ init() {
     SDL_Log("music error: %s", SDL_GetError());
     //assert(game_music);
     if(game_music != NULL) {
-        //Mix_PlayMusic(game_music, -1);
+        Mix_PlayMusic(game_music, -1);
     }
 
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
@@ -496,6 +496,7 @@ animate_player(double dt) {
     if(fabs(player.velocity[1]) > 0.1 || !player.obj.on_floor) {
         next = &player_jump_playback;
     }
+    //next = &player_idle_playback;
 
     if(player.velocity[0] > 0.2) {
         player_rot_y_target = 3.14159265 / 2.0;
@@ -549,6 +550,57 @@ tick_player(double dt) {
 //     glm_mat4_mul(playback->state[i].position_matrix, out, out);
 // }
 
+CGLM_INLINE
+void
+my_quat_mat4(versor q, mat4 dest) {
+  double w, x, y, z,
+        xx, yy, zz,
+        xy, yz, xz,
+        wx, wy, wz, norm, s;
+
+  norm = glm_quat_norm(q);
+  //s    = norm > 0.0f ? 2.0f / norm : 0.0f;
+  norm = (norm > 0.0 ? norm : INFINITY);
+
+  x = q[0];
+  y = q[1];
+  z = q[2];
+  w = q[3];
+
+  xx = 2.0 * x * x / norm;   xy = 2.0 * x * y / norm;   wx = 2.0 * w * x / norm;
+  yy = 2.0 * y * y / norm;   yz = 2.0 * y * z / norm;   wy = 2.0 * w * y / norm;
+  zz = 2.0 * z * z / norm;   xz = 2.0 * x * z / norm;   wz = 2.0 * w * z / norm;
+
+  dest[0][0] = 1.0f - yy - zz;
+  dest[1][1] = 1.0f - xx - zz;
+  dest[2][2] = 1.0f - xx - yy;
+
+  dest[0][1] = xy + wz;
+  dest[1][2] = yz + wx;
+  dest[2][0] = xz + wy;
+
+  dest[1][0] = xy - wz;
+  dest[2][1] = yz - wx;
+  dest[0][2] = xz - wy;
+
+  dest[0][3] = 0.0f;
+  dest[1][3] = 0.0f;
+  dest[2][3] = 0.0f;
+  dest[3][0] = 0.0f;
+  dest[3][1] = 0.0f;
+  dest[3][2] = 0.0f;
+  dest[3][3] = 1.0f;
+}
+
+// void
+// my_quat_mat4(versor rot, mat4 matrix) {
+//     float norm = glm_quat_norm(rot);
+//     if(norm < 0.0001) {
+//         glm_mat4_identity(matrix);
+//         return;
+//     }
+//     glm_quat_mat4(rot, matrix);
+// }
 
 void
 apply_playbacks() {
@@ -565,15 +617,31 @@ apply_playbacks() {
 
         vec3 pos;
         versor rot;
-        vec3 scale;
+        vec3 scale = GLM_VEC3_ONE_INIT;
 
         glm_vec3_lerp(anim1->state[i].position, anim2->state[i].position, blend, pos);
-        glm_vec3_lerp(anim1->state[i].scale, anim2->state[i].scale, blend, scale);
+        //glm_vec3_lerp(anim1->state[i].scale, anim2->state[i].scale, blend, scale);
+        glm_quat_normalize(anim1->state[i].rotation);
+        glm_quat_normalize(anim2->state[i].rotation);
         glm_quat_slerp(anim1->state[i].rotation, anim2->state[i].rotation, blend, rot);
 
+        // apparently this particular normalize() is needed for things not to blow
+        // up. Why? who the hell knows.
+        //
+        // oh. norm is very different from normalize for quaternions.
+        glm_quat_normalize(rot);
+
         glm_translate_make(translate_matrix, pos);
-        glm_quat_mat4(rot, rotate_matrix);
+        my_quat_mat4(rot, rotate_matrix);
         glm_scale_make(scale_matrix, scale);
+
+        if(fabs(glm_mat4_det(rotate_matrix)) < 0.5) {
+            glm_mat4_identity(rotate_matrix);
+            SDL_Log("bone = %llu", i);
+            SDL_Log("rot0 = %f %f %f %f", anim1->state[i].rotation[0], anim1->state[i].rotation[1], anim1->state[i].rotation[2], anim1->state[i].rotation[3]);
+            SDL_Log("rot1 = %f %f %f %f", anim2->state[i].rotation[0], anim2->state[i].rotation[1], anim2->state[i].rotation[2], anim2->state[i].rotation[3]);
+            SDL_Log("blend = %f %f %f %f", rot[0], rot[1], rot[2], rot[3]);
+        }
 
         glm_mat4_copy(scale_matrix, skm->bone_local_pose[i]);
         glm_mat4_mul(rotate_matrix, skm->bone_local_pose[i], skm->bone_local_pose[i]);

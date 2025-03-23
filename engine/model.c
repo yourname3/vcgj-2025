@@ -58,6 +58,8 @@ cvt_quat(versor dest, struct aiQuaternion *src) {
     dest[1] = src->y;
     dest[2] = src->z;
     dest[3] = src->w;
+
+    glm_quat_normalize(dest);
 }
 
 void
