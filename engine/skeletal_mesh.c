@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "alloc.h"
+#include "model.h"
 
 #include "our_gl.h"
 
@@ -66,16 +67,16 @@ void
 skm_gl_draw(struct skeletal_mesh *skm) {
     REPORT(glBindBuffer(GL_ARRAY_BUFFER, skm->array_buf));
 
-    REPORT(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0));
+    REPORT(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)0));
     REPORT(glEnableVertexAttribArray(0));
 
-    REPORT(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(sizeof(float) * 3)));
+    REPORT(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 3)));
     REPORT(glEnableVertexAttribArray(1));
 
-    REPORT(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(sizeof(float) * 6)));
+    REPORT(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 6)));
     REPORT(glEnableVertexAttribArray(2));
 
-    REPORT(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(sizeof(float) * 10)));
+    REPORT(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 10)));
     REPORT(glEnableVertexAttribArray(3));
 
     REPORT(glUseProgram(skm->shader));

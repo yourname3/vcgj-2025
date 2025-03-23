@@ -7,6 +7,7 @@ SRCS=\
 	engine/skeletal_mesh.c \
 	engine/serialize/serialize.c \
 	engine/serialize/skm_serialize.c \
+	engine/stb_image.c \
 	obj/shader.c \
 	glad/src/glad.c 
 

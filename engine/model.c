@@ -85,7 +85,7 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
 
     SDL_Log("mNumVertices = %u, mNumFaaces = %u", mesh->mNumVertices, mesh->mNumFaces);
 
-    size_t vert_arrsize = mesh->mNumVertices * 14;
+    size_t vert_arrsize = mesh->mNumVertices * SKEL_MESH_4BYTES_COUNT;
     size_t elem_arrsize = mesh->mNumFaces * 3; // Triangulated
 
     vert_data = eng_zalloc(sizeof(*vert_data) * vert_arrsize);
@@ -95,7 +95,7 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
     assert(mesh->mNormals);
 
     for(size_t i = 0; i < mesh->mNumVertices; ++i) {
-        size_t i3 = i * 14;
+        size_t i3 = i * SKEL_MESH_4BYTES_COUNT;
         vert_data[i3 + 0] = mesh->mVertices[i].x;
         vert_data[i3 + 1] = mesh->mVertices[i].y;
         vert_data[i3 + 2] = mesh->mVertices[i].z;
@@ -115,6 +115,15 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
         vert_data[i3 + 11] = -1;
         vert_data[i3 + 12] = -1;
         vert_data[i3 + 13] = -1;
+
+        if(mesh->mTextureCoords[0]) {
+            vert_data[i3 + 14] = mesh->mTextureCoords[0][i].x;
+            vert_data[i3 + 15] = mesh->mTextureCoords[0][i].x;
+        }
+        else {
+            vert_data[i3 + 14] = 0;
+            vert_data[i3 + 15] = 0;
+        }
 
         //SDL_Log("vert: %f %f %f\n", vert_data[i3 + 3], vert_data[i3 + 4], vert_data[i3 + 5]);
     }
@@ -170,7 +179,7 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
                 size_t vert = bone->mWeights[j].mVertexId;
                 float weight = bone->mWeights[j].mWeight;
 
-                size_t i3 = vert * 14;
+                size_t i3 = vert * SKEL_MESH_4BYTES_COUNT;
                 for(size_t check = 10; check < 14; ++check) {
                     if(vert_data[i3 + check] < 0) {
                         // We can use this slot
@@ -353,6 +362,23 @@ handle_node(struct aiNode *node, const struct aiScene *scene, struct import_data
     }
 }
 
+GLuint
+upload_embedded_texture(void *buf, size_t size);
+
+void
+handle_texture(struct aiTexture *texture, struct import_data *id) {
+    GLuint *output = NULL;
+    if(id->got_texture < id->num_texture) {
+        output = &id->texture[id->got_texture++];
+    }
+    else return;
+
+    SDL_Log("texture info: %d %d %s %s ", texture->mWidth, texture->mHeight, texture->mFilename.data, texture->achFormatHint);
+    if(!strcmp(texture->achFormatHint, "png")) {
+        *output = upload_embedded_texture(texture->pcData, texture->mWidth);
+    }
+}
+
 void
 load_model(const char *path, struct import_data *id) {
     const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_PopulateArmatureData);
@@ -362,7 +388,7 @@ load_model(const char *path, struct import_data *id) {
         return;
     }
 
-    SDL_Log("model: got %d meshes, %d skeletons\n", scene->mNumMeshes, scene->mNumSkeletons);
+    SDL_Log("model: got %d meshes, %d skeletons, %d textures\n", scene->mNumMeshes, scene->mNumSkeletons, scene->mNumTextures);
 
     for(size_t i = 0; i < scene->mNumMeshes; ++i) {
         handle_mesh(scene->mMeshes[i], id);
@@ -370,6 +396,10 @@ load_model(const char *path, struct import_data *id) {
 
     for(size_t i = 0; i < scene->mNumAnimations; ++i) {
         handle_animation(scene->mAnimations[i], scene, id);
+    }
+
+    for(size_t i = 0; i < scene->mNumTextures; ++i) {
+        handle_texture(scene->mTextures[i], id);
     }
 
     // for(size_t i = 0; i < scene->mNumSkeletons; ++i) {

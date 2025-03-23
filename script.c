@@ -52,6 +52,8 @@ struct {
     GLuint self; // the shader program
 } skel_pbr;
 
+GLuint player_tex = 0;
+
 // projection matrix
 static mat4 p_matrix;
 
@@ -120,9 +122,6 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
     // are real vertex indices, i.e. the sub_data pointer divided by 6.
     GLuint tri_base = *vertptr / 6;
 
-    SDL_Log("copy a mesh to %d %d -> tribase = %lu", x, y, tri_base);
-    SDL_Log("triptr = %lu", *triptr);
-
     float off_x = x * 2 + nudge();
     float off_y = y * 2 + nudge();
     float off_z = nudge();
@@ -143,7 +142,7 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
 
     for(size_t i = 0; i < vert_data_count; ++i) {
         size_t i6 = *vertptr;
-        size_t i14 = i * 14;
+        size_t i14 = i * SKEL_MESH_4BYTES_COUNT;
 
         vec4 pos = {
             hay_mesh.vertices[i14 + 0],
@@ -196,10 +195,8 @@ gen_level_mesh(struct map *map) {
         }
     }
 
-    size_t vert_data_count = hay_mesh.vertices_count / 14;
+    size_t vert_data_count = hay_mesh.vertices_count / SKEL_MESH_4BYTES_COUNT;
     size_t tri_data_count = hay_mesh.triangles_count / 3;
-
-    SDL_Log("vertdc: %llu, tridc: %llu", vert_data_count, tri_data_count);
 
     // Fow now, just clone the vertex data for every vertex. We could try to 
     // find a way to only have one copy of normals.
@@ -212,8 +209,6 @@ gen_level_mesh(struct map *map) {
     GLuint triptr = 0;
 
     level_mesh.triangle_count = hay_count * tri_data_count * 3;
-
-    SDL_Log("level_mesh.triangle_count = %llu", level_mesh.triangle_count);
 
     for(int x = 0; x < map->width; ++x) {
         for(int y = 0; y < map->height; ++y) {
@@ -311,6 +306,10 @@ init() {
         .skm_arm_anim = (struct skm_armature_anim*[]){ &player_idle_anim, &player_jump_anim, &player_walk_anim },
         .num_skm_arm_anim = 3,
         .got_skm_arm_anim = 0,
+
+        .texture = (GLuint[]){ 0 },
+        .num_texture = 1,
+        .got_texture = 0,
     };
 
     struct import_data hay_id = {
@@ -325,6 +324,8 @@ init() {
 
     load_model("blender/player.glb", &player_id);
     load_model("blender/hay.glb", &hay_id);
+
+    player_tex = player_id.texture[0];
 
     game_music = Mix_LoadMUS("music.ogg");
     SDL_Log("music error: %s", SDL_GetError());
