@@ -8,8 +8,8 @@
 
 uint8_t
 map_get(struct map *map, int32_t x, int32_t y) {
-    if(x < 0 || y < 0) return CELL_EMPTY;
-    if(x >= map->width || y >= map->height) return CELL_EMPTY;
+    if(x < 0 || y < 0) return CELL_HAY;
+    if(x >= map->width || y >= map->height) return CELL_HAY; // don't go ooob
 
     y = map->height - y - 1;
 

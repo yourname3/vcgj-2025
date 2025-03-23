@@ -496,7 +496,7 @@ janky_rotate(mat4 pose, float amount, vec3 axis) {
 void
 init_player() {
     player.obj.on_floor = false;
-    glm_vec2_copy((vec2){ 4, 20 }, player.obj.pos);
+    glm_vec2_copy((vec2){ 4, 8 }, player.obj.pos);
     glm_vec2_copy((vec2){ -1, -1 }, player.obj.top_left);
     // Ok, this really should probably be top_left = -0.8, but this gives us
     // what we want for now, so I guess just let it ride...
