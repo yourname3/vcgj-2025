@@ -81,7 +81,7 @@ obj/win/%.o: %.c | $(addprefix obj/win/,$(dir $(SRCS))) obj/shader.c
 	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2 -I. -ffunction-sections -DFAST_MODE
 
 obj/web/%.o: %.c | $(addprefix obj/web/,$(dir $(SRCS))) obj/shader.c
-	emcc $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-web/include -Iglad/include -I. -O2 -DFAST_MODE
+	emcc $(CFLAGS) -c $< -o $@ -I../SDL/include -I../SDL_mixer/include -I../assimp/include -I../assimp/build-web/include -Iglad/include -I. -O2 -DFAST_MODE -I../cglm/include
 
 %/:
 	mkdir -p $@
