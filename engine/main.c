@@ -199,7 +199,7 @@ main(int argc, char **argv) {
         // TODO: Probably keep going if we can't open sound, just disable the
         // music loading.
         SDL_Log("Couldn't initialize sound: %s", SDL_GetError());
-        return 1;
+        //return 1;
     }
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);

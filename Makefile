@@ -32,7 +32,7 @@ CFLAGS=-Wall -g
 
 .PHONY: all web win clean
 
-GAMENAME=game
+GAMENAME=bens-bales
 
 all: win shader2c
 
@@ -67,9 +67,13 @@ bin/win/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/win/ bin/win/SDL3.dll bin
 
 bin/dist/$(GAMENAME).exe: $(SRCS:%.c=obj/win/%.o) | bin/dist/
 	mkdir -p bin/dist/blender
+	mkdir -p bin/dist/sounds
+	cp -r font-special-elite bin/dist
+	cp sounds/boing.wav bin/dist/sounds
+	cp sounds/chomp.wav bin/dist/sounds
 	cp blender/horse.glb bin/dist/blender
 	cp blender/hay.glb bin/dist/blender
-	cp music.ogg bin/dist
+	cp sounds/music.ogg bin/dist/sounds
 	g++ $^ -o $@ -L../SDL/build-win/ -L../SDL_mixer/build-win/ -L../assimp/build-win/lib $(STATICLIBS) -Wl,--gc-sections
 
 obj/win/%.o: %.c | $(addprefix obj/win/,$(dir $(SRCS))) obj/shader.c

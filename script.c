@@ -440,7 +440,7 @@ init() {
     hay_tex = hay_id.texture[0];
     carrot_tex = carrot_id.texture[0];
 
-    game_music = Mix_LoadMUS("music.ogg");
+    game_music = Mix_LoadMUS("sounds/music.ogg");
     SDL_Log("music error: %s", SDL_GetError());
     //assert(game_music);
     if(game_music != NULL) {
