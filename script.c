@@ -406,6 +406,28 @@ float anim_transition_blend = 1.0;
 struct skm_armature_anim_playback *anim_prev = &player_idle_playback;
 struct skm_armature_anim_playback *anim_cur  = &player_idle_playback;
 
+float player_rot_y = 0.0;
+float player_rot_y_target = 0.0;
+
+int
+sign_of(float f) {
+    if (f < 0) return -1;
+    if (f > 0) return 1;
+    return 0;
+}
+
+void
+step(float *x, float target, float speed) {
+    float dist = target - *x;
+    if(fabs(speed) > fabs(dist)) {
+        speed = dist;
+    }
+    else if(sign_of(speed) == -sign_of(dist)) {
+        speed *= -1;
+    }
+    *x += speed;
+}
+
 void
 animate_player(double dt) {
     struct skm_armature_anim_playback *next = &player_idle_playback;
@@ -417,7 +439,15 @@ animate_player(double dt) {
         next = &player_jump_playback;
     }
 
-    anim_transition_blend += (1.0 - anim_transition_blend) * 0.1;
+    if(player.velocity[0] > 2) {
+        player_rot_y_target = 0.0;
+    }
+    if(player.velocity[0] < -2) {
+        player_rot_y_target = -3.14159265;
+    }
+    step(&player_rot_y, player_rot_y_target, 3.14 * dt * 3.0);
+
+    step(&anim_transition_blend, 1.0, 3.0 * dt);
     if(next != anim_cur) {
         anim_prev = anim_cur;
         anim_cur = next;
@@ -432,6 +462,7 @@ tick_player(double dt) {
 
     // Reset the player's matrix.
     glm_mat4_identity(player.model_matrix);
+    glm_rotated(player.model_matrix, player_rot_y, (vec3){ 0, 1, 0 });
     glm_translated(player.model_matrix, (vec3){ player.obj.pos[0], player.obj.pos[1], 0.0 });
 
     // Set up camera.
