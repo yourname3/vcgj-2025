@@ -49,6 +49,8 @@ struct {
     GLuint metallic;
     GLuint perceptual_roughness;
 
+    GLuint albedo;
+
     GLuint self; // the shader program
 } skel_pbr;
 
@@ -76,6 +78,8 @@ struct {
     GLuint base_color;
     GLuint metallic;
     GLuint perceptual_roughness;
+
+    GLuint albedo;
 
     GLuint self;
 } static_pbr;
@@ -269,6 +273,7 @@ init() {
     REPORT(static_pbr.metallic = glGetUniformLocation(static_pbr.self, "metallic"));
     REPORT(static_pbr.perceptual_roughness = glGetUniformLocation(static_pbr.self, "perceptual_roughness"));
     REPORT(static_pbr.base_color = glGetUniformLocation(static_pbr.self, "base_color"));
+    REPORT(static_pbr.albedo = glGetUniformLocation(static_pbr.self, "albedo"));
 
     skel_pbr.self = ourgl_compile_shader(skel_vert_src, skel_frag_src);
 
@@ -281,6 +286,7 @@ init() {
     REPORT(skel_pbr.metallic = glGetUniformLocation(skel_pbr.self, "metallic"));
     REPORT(skel_pbr.perceptual_roughness = glGetUniformLocation(skel_pbr.self, "perceptual_roughness"));
     REPORT(skel_pbr.base_color = glGetUniformLocation(skel_pbr.self, "base_color"));
+    REPORT(skel_pbr.albedo = glGetUniformLocation(skel_pbr.self, "albedo"));
 
     const float w = 640;
     const float h = 480;
@@ -586,6 +592,12 @@ render() {
     glUniform1f(skel_pbr.metallic, 0.2);
     glUniform1f(skel_pbr.perceptual_roughness, 0.3);
     glUniform3f(skel_pbr.base_color, 0.5, 0.2, 0.8);
+
+    REPORT(glActiveTexture(GL_TEXTURE1));
+    REPORT(glBindTexture(GL_TEXTURE_2D, player_tex));
+
+    REPORT(glUniform1i(skel_pbr.albedo, 1));
+
     skm_gl_draw(&player_mesh);
 
     REPORT(glBindBuffer(GL_ARRAY_BUFFER, level_mesh.array_buf));
@@ -602,7 +614,12 @@ render() {
     REPORT(glUseProgram(static_pbr.self));
     glUniform1f(static_pbr.metallic, 0.0);
     glUniform1f(static_pbr.perceptual_roughness, 0.95);
-    glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);
+    glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);\
+
+    REPORT(glActiveTexture(GL_TEXTURE1));
+    REPORT(glBindTexture(GL_TEXTURE_2D, 0)); // null tex?
+
+    REPORT(glUniform1i(static_pbr.albedo, 1));
 
     REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
 }

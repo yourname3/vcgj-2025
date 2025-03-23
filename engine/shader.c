@@ -63,6 +63,7 @@ ourgl_compile_shader(const char *vs_src, const char *fs_src) {
     REPORT(glBindAttribLocation(shader, 1, "a_norm"));
     REPORT(glBindAttribLocation(shader, 2, "a_weight"));
     REPORT(glBindAttribLocation(shader, 3, "a_weight_idx"));
+    REPORT(glBindAttribLocation(shader, 4, "a_uv"));
     
 
     REPORT(glLinkProgram(shader));

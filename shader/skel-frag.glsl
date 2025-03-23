@@ -5,9 +5,13 @@ precision highp float;
 varying vec3 v_norm;
 varying vec3 v_pos;
 
+varying vec2 v_uv;
+
 uniform vec3 base_color;
 uniform float perceptual_roughness;
 uniform float metallic;
+
+uniform sampler2D u_albedo;
 
 #define PI 3.1415926538
 
@@ -98,9 +102,11 @@ void main() {
     vec3 normal = normalize(v_norm);
 
     float reflectance = 0.5;
+
+    vec3 base_color_real = base_color * texture2D(u_albedo, v_uv).xyz;
     
-    vec3 diffuse_color = (1.0 - metallic) * base_color;
-    vec3 f0 = 0.16 * reflectance * reflectance * (1.0 - metallic) + base_color * metallic;
+    vec3 diffuse_color = (1.0 - metallic) * base_color_real;
+    vec3 f0 = 0.16 * reflectance * reflectance * (1.0 - metallic) + base_color_real * metallic;
     float roughness = clamp(perceptual_roughness * perceptual_roughness, 0.01, 1.0);
 
     vec3 sum = vec3(0.0);

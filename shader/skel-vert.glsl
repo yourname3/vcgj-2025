@@ -9,8 +9,12 @@ attribute vec3 a_norm;
 attribute vec4 a_weight;
 attribute vec4 a_weight_idx;
 
+attribute vec2 a_uv;
+
 varying vec3 v_norm; // Eye space
 varying vec3 v_pos;
+
+varying vec2 v_uv;
 
 // View matrix. Used to translate stuff to eye space
 uniform mat4 u_v;
@@ -43,6 +47,8 @@ void main() {
     
     vec4 eye_space = u_v * model_matrix * vec4(a_pos, 1.0);
     v_pos = eye_space.xyz;
+
+    v_uv = a_uv;
 
     gl_Position = u_p * eye_space;
 }

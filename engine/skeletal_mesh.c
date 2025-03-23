@@ -79,6 +79,9 @@ skm_gl_draw(struct skeletal_mesh *skm) {
     REPORT(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 10)));
     REPORT(glEnableVertexAttribArray(3));
 
+    REPORT(glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 14)));
+    REPORT(glEnableVertexAttribArray(4));
+
     REPORT(glUseProgram(skm->shader));
 
     REPORT(glActiveTexture(GL_TEXTURE0));
