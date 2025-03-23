@@ -44,5 +44,6 @@ extern struct map map0;
 #define CELL_EMPTY 0
 #define CELL_HAY   1
 #define CELL_PLAYER 2
+#define CELL_CARROT 3
 
 #endif

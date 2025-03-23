@@ -33,16 +33,20 @@ struct carrot {
     vec2 position;
 
     float rotation;
+    float scale;
+
+    bool eaten;
 };
 
 size_t carrot_count = 1;
 
-struct carrot carrots[1] = {
-    {
-        .position = { 2.0 * 1, 2.0 * 2 },
-        .rotation = 0
-    }
-};
+struct carrot carrots[256] = {0}; 
+// {
+//     {
+//         .position = { 2.0 * 1, 2.0 * 2 },
+//         .rotation = 0
+//     }
+// };
 
 int
 sign_of(float f) {
@@ -249,6 +253,19 @@ gen_level_mesh(struct map *map) {
         for(int y = 0; y < map->height; ++y) {
             if(map_get(map, x, y) == CELL_HAY) {
                 hay_count += 1;
+            }
+
+            if(map_get(map, x, y) == CELL_CARROT) {
+                // Instantiate a carrot.
+                carrots[carrot_count++] = (struct carrot){
+                    .position = { x * 2, y * 2 },
+                    .rotation = 0,
+                    .scale = 1,
+                    .eaten = false
+                };
+
+                // Clear the carrot for physics engine
+                map_set(map, x, y, CELL_EMPTY);
             }
         }
     }
