@@ -769,6 +769,7 @@ render() {
     REPORT(glBindBuffer(GL_ARRAY_BUFFER, carrot_mesh.array_buf));
     REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, carrot_mesh.element_buf));
 
+    // Apparently we have to glVertexAttribPointer even though we already did inside skm_gl_draw...?
     REPORT(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)0));
     REPORT(glEnableVertexAttribArray(0));
 
