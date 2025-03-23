@@ -328,8 +328,10 @@ init() {
 
     game_music = Mix_LoadMUS("music.ogg");
     SDL_Log("music error: %s", SDL_GetError());
-    assert(game_music);
-    Mix_PlayMusic(game_music, -1);
+    //assert(game_music);
+    if(game_music != NULL) {
+        Mix_PlayMusic(game_music, -1);
+    }
 
     skm_arm_playback_init(&player_walk_playback, &player_walk_anim);
     skm_arm_playback_init(&player_idle_playback, &player_idle_anim);
