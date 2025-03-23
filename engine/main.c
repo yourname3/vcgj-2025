@@ -5,6 +5,7 @@
 #include <SDL3/SDL_main.h>
 
 #include "our_gl.h"
+#include "../actions.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -57,6 +58,23 @@ window_resized(int width, int height) {
 }
 
 void
+act_update(struct action *act, SDL_Keycode key, bool pressed) {
+    if(key == act->code) {
+        act->is_pressed = pressed;
+    }
+}
+
+void
+act_tick(struct action *act) {
+    act->was_pressed = act->is_pressed;
+}
+
+bool
+act_just_pressed(struct action *act) {
+    return act->is_pressed && !act->was_pressed;
+}
+
+void
 main_loop(void) {
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
@@ -66,6 +84,16 @@ main_loop(void) {
                 break;
             case SDL_EVENT_WINDOW_RESIZED:
                 window_resized(event.window.data1, event.window.data2);
+                break;
+            case SDL_EVENT_KEY_DOWN:
+                act_update(&act_left, event.key.key, true);
+                act_update(&act_right, event.key.key, true);
+                act_update(&act_jump, event.key.key, true);
+                break;
+            case SDL_EVENT_KEY_UP:
+                act_update(&act_left, event.key.key, false);
+                act_update(&act_right, event.key.key, false);
+                act_update(&act_jump, event.key.key, false);
                 break;
         }
     }
@@ -95,6 +123,10 @@ main_loop(void) {
 
     while(time_in_future > step) {
         tick(dt_wanted);
+        /* After each frame, update keys. TODO: Maybe re-check inputs for each tick? */
+        act_tick(&act_left);
+        act_tick(&act_right);
+        act_tick(&act_jump);
         time_in_future -= step;
     }
 

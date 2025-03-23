@@ -9,6 +9,7 @@
 #include "obj/shader.h"
 
 #include "map.h"
+#include "actions.h"
 
 #include <cglm/cglm.h>
 
@@ -359,12 +360,38 @@ init_player() {
     glm_vec2_copy((vec2){ 0, -10 }, player.velocity);
 }
 
+struct action act_left = {
+    .code = SDLK_A
+};
+struct action act_right = {
+    .code = SDLK_D
+};
+struct action act_jump = {
+    .code = SDLK_SPACE
+};
+
 void
 physics_player(double dt) {
-    //vec2 gravity = { 0, -9 * dt };
-    //glm_vec2_add(player.velocity, gravity, player.velocity);
+    vec2 gravity = { 0, -36 * dt };
+    glm_vec2_add(player.velocity, gravity, player.velocity);
 
-    phys_slide_motion_solver(player.velocity, player.velocity, &player.obj, 0.005, dt);
+    float h_vel = 0.0;
+    if(act_left.is_pressed) {
+        h_vel = -1;
+    }
+    else if(act_right.is_pressed) {
+        h_vel = 1;
+    }
+
+    player.velocity[0] = h_vel * 12.0f;
+
+    if(act_just_pressed(&act_jump) && player.obj.on_floor) {
+        // jump impulse
+        player.velocity[1] = 18.0f;
+    }
+
+    const float margin = 1.0 / 65536.0;
+    phys_slide_motion_solver(player.velocity, player.velocity, &player.obj, margin, dt);
 }
 
 void

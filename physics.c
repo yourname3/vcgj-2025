@@ -85,7 +85,7 @@ obj_top(struct phys_obj *obj) {
 
 bool
 obj_get_normal_from_overlap(vec2 normal_out, struct phys_obj *self, struct phys_obj *other) {
-    glm_vec2_sub(other->pos, self->pos, normal_out);
+    glm_vec2_sub(self->pos, other->pos, normal_out);
 
     bool other_left_side = obj_left(other) <= obj_right(self);
     bool other_right_side = obj_right(other) <= obj_left(self);
@@ -215,13 +215,19 @@ vec2_project(vec2 a, vec2 b, vec2 out) {
 
 void
 phys_slide_motion_solver(vec2 vel, vec2 vel_out, struct phys_obj *obj, float margin, float dt) {
-    int max_slide_count = 2;
+    int max_slide_count = 3;
 
     vec2 total_vel;
     glm_vec2_scale(vel, dt, total_vel);
 
     glm_vec2_copy(vel, vel_out);
 
+    // if(vel[0] > 0) {
+    //     obj->on_floor = false;
+    // }
+    // if(vel[0] < -0.05) {
+    //     obj->on_floor = false;
+    // }
     obj->on_floor = false;
     obj->col_normal_count = 0;
 
@@ -265,6 +271,8 @@ phys_slide_motion_solver(vec2 vel, vec2 vel_out, struct phys_obj *obj, float mar
         vec2_project(total_vel, normal, component);
         // Also remove the collided component from the displacement.
         glm_vec2_sub(total_vel, component, total_vel);
+
+        //SDL_Log("normal vector: %f %f", normal[0], normal[1]);
 
         // Set on floor property
         if(glm_vec2_dot(normal, (vec2){ 0, 1 }) > 0.5) {
