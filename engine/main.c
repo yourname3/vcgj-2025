@@ -136,8 +136,8 @@ main_loop(void) {
     }
 
 
-    #define SPEEDUP(step) (step / 4)
-    //#define SPEEDUP(step) step
+    //#define SPEEDUP(step) (step / 4)
+    #define SPEEDUP(step) step
 
     while(time_in_future > SPEEDUP(step)) { // let's run fast for playtesting.
         tick(dt_wanted);
