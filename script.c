@@ -78,6 +78,7 @@ struct {
 } skel_pbr;
 
 GLuint player_tex = 0;
+GLuint hay_tex = 0;
 
 // projection matrix
 static mat4 p_matrix;
@@ -141,13 +142,15 @@ rand_angle() {
     return x * 6.28 * 0.25;
 }
 
+#define LEVEL_MESH_ATTRIBS 8
+
 void
 copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_t vert_data_count,
         size_t tri_data_count, int x, int y) {
     
     // The actual vertex indices into the array, as far as the GPU is concerned,
     // are real vertex indices, i.e. the sub_data pointer divided by 6.
-    GLuint tri_base = *vertptr / 6;
+    GLuint tri_base = *vertptr / LEVEL_MESH_ATTRIBS;
 
     float off_x = x * 2 + nudge();
     float off_y = y * 2 + nudge();
@@ -195,7 +198,10 @@ copy_hay_mesh(float *verts, GLuint *tris, GLuint *vertptr, GLuint *triptr, size_
         verts[i6 + 4] = norm[1];
         verts[i6 + 5] = norm[2];
 
-        *vertptr += 6;
+        verts[i6 + 6] = hay_mesh.vertices[i14 + 14];
+        verts[i6 + 7] = hay_mesh.vertices[i14 + 15];
+
+        *vertptr += LEVEL_MESH_ATTRIBS;
     }
 
     for(size_t i = 0; i < tri_data_count; ++i) {
@@ -227,7 +233,7 @@ gen_level_mesh(struct map *map) {
 
     // Fow now, just clone the vertex data for every vertex. We could try to 
     // find a way to only have one copy of normals.
-    size_t verts_size = sizeof(float) * 6 * hay_count * vert_data_count;
+    size_t verts_size = sizeof(float) * LEVEL_MESH_ATTRIBS * hay_count * vert_data_count;
     float *verts = eng_zalloc(verts_size);
     size_t tris_size = sizeof(GLuint) * 3 * hay_count * tri_data_count;
     GLuint *tris = eng_zalloc(tris_size);
@@ -349,12 +355,17 @@ init() {
         .skm_arm_anim = NULL,
         .num_skm_arm_anim = 0,
         .got_skm_arm_anim = 0,
+
+        .texture = (GLuint[]) { 0 },
+        .num_texture = 1,
+        .got_texture = 0,
     };
 
     load_model("blender/player.glb", &player_id);
     load_model("blender/hay.glb", &hay_id);
 
     player_tex = player_id.texture[0];
+    hay_tex = hay_id.texture[0];
 
     game_music = Mix_LoadMUS("music.ogg");
     SDL_Log("music error: %s", SDL_GetError());
@@ -628,21 +639,25 @@ render() {
     REPORT(glBindBuffer(GL_ARRAY_BUFFER, level_mesh.array_buf));
     REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, level_mesh.element_buf));
 
-    REPORT(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
+    REPORT(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, LEVEL_MESH_ATTRIBS * sizeof(float), (void*)0));
     REPORT(glEnableVertexAttribArray(0));
 
-    REPORT(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3)));
+    REPORT(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, LEVEL_MESH_ATTRIBS * sizeof(float), (void*)(sizeof(float) * 3)));
     REPORT(glEnableVertexAttribArray(1));
+
+    REPORT(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, LEVEL_MESH_ATTRIBS * sizeof(float), (void*)(sizeof(float) * 6)));
+    REPORT(glEnableVertexAttribArray(4));
 
     //SDL_Log("level mesh tri count: %u\n", level_mesh.triangle_count);
 
     REPORT(glUseProgram(static_pbr.self));
     glUniform1f(static_pbr.metallic, 0.0);
     glUniform1f(static_pbr.perceptual_roughness, 0.95);
-    glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);
+    //glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);
+    glUniform3f(static_pbr.base_color, 1.0, 1.0, 1.0);
 
     REPORT(glActiveTexture(GL_TEXTURE0));
-    REPORT(glBindTexture(GL_TEXTURE_2D, null_texture)); // null tex?
+    REPORT(glBindTexture(GL_TEXTURE_2D, hay_tex));
 
     REPORT(glUniform1i(static_pbr.albedo, 0));
 

@@ -4,7 +4,7 @@ precision highp float;
 attribute vec3 a_pos;
 attribute vec3 a_norm;
 
-// attribute vec2 a_uv;
+attribute vec2 a_uv;
 
 // We'll need these when we implement pbr later.
 // We might want to convert some of the stuff to uniforms first..?
@@ -25,7 +25,7 @@ void main() {
     vec4 eye_space = vm * vec4(a_pos, 1.0);
     v_pos = eye_space.xyz;
 
-    v_uv = vec2(0);
+    v_uv = a_uv;
 
     gl_Position = u_p * eye_space;
 }
