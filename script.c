@@ -704,8 +704,19 @@ apply_playbacks() {
 }
 
 void
+tick_carrots(double dt) {
+    for(size_t i = 0; i < carrot_count; ++i) {
+        carrots[i].rotation += dt;
+        if(carrots[i].rotation > 6.28) {
+            carrots[i].rotation -= 6.28;
+        }
+    }
+}
+
+void
 tick(double dt) {
     tick_player(dt);
+    tick_carrots(dt);
 
     //skm_arm_playback_apply(&player_walk_playback);
     //skm_arm_playback_apply(&player_idle_playback);
@@ -773,7 +784,7 @@ render_carrots() {
 void
 render() {
     REPORT(glUseProgram(skel_pbr.self));
-    glUniform1f(skel_pbr.metallic, 0.1);
+    glUniform1f(skel_pbr.metallic, 0.0);
     glUniform1f(skel_pbr.perceptual_roughness, 0.3);
     glUniform3f(skel_pbr.base_color, 1.0, 1.0, 1.0); // multiplied by texture
 
@@ -785,7 +796,7 @@ render() {
     skm_gl_draw(&player_mesh);
 
     REPORT(glUseProgram(static_pbr.self));
-    glUniform1f(static_pbr.metallic, 0.3);
+    glUniform1f(static_pbr.metallic, 0.0);
     glUniform1f(static_pbr.perceptual_roughness, 0.7);
     //glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);
     glUniform3f(static_pbr.base_color, 1.0, 1.0, 1.0);

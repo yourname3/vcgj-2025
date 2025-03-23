@@ -69,7 +69,7 @@ brdf_envmap(vec3 diffuse_color, vec3 f0, float roughness, vec3 n, vec3 v) {
     //vec3 sampled_Il = textureLod(environment_map, l, (max_level - 1) * pow(roughness, 0.125)).rgb;
 
     // Otherwise, just do constant color.
-    vec3 sampled_Id = vec3(0.4); //vec3(0.3, 0.5, 0.9) * 0.5;
+    vec3 sampled_Id = vec3(0.5); //vec3(0.3, 0.5, 0.9) * 0.5;
     vec3 sampled_Il = sampled_Id;
 
     // Initialize Fd to 0 in case we do the sum
@@ -112,7 +112,7 @@ void main() {
     vec3 sum = vec3(0.0);
 
    // vec3 light_direction = vec3(0, 0, -1);
-    vec3 light2 = vec3(-3, -5, -4);
+    vec3 light2 = vec3(-2, -5, -8);
     vec3 v = -normalize(v_pos);
 
     // sum = brdf_attenuated(
