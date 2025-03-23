@@ -29,6 +29,21 @@ struct skeletal_mesh hay_mesh = {0};
 
 struct skeletal_mesh carrot_mesh = {0};
 
+struct carrot {
+    vec2 position;
+
+    float rotation;
+};
+
+size_t carrot_count = 1;
+
+struct carrot carrots[1] = {
+    {
+        .position = { 2.0 * 1, 2.0 * 2 },
+        .rotation = 0
+    }
+};
+
 int
 sign_of(float f) {
     if (f < 0) return -1;
@@ -742,6 +757,20 @@ tick(double dt) {
 }
 
 void
+render_carrots() {
+    for(size_t i = 0; i < carrot_count; ++i) {
+        mat4 tform = GLM_MAT4_IDENTITY_INIT;
+
+        glm_rotated(tform, carrots[i].rotation, (vec3){ 0, 1, 0 });
+        glm_translated(tform, (vec3){ carrots[i].position[0], carrots[i].position[1], 0.0 });
+
+        REPORT(glUniformMatrix4fv(static_pbr.m, 1, false, tform[0]));
+        REPORT(glDrawElements(GL_TRIANGLES, carrot_mesh.triangles_count, GL_UNSIGNED_INT, 0));
+
+    }
+}
+
+void
 render() {
     REPORT(glUseProgram(skel_pbr.self));
     glUniform1f(skel_pbr.metallic, 0.1);
@@ -785,7 +814,7 @@ render() {
     REPORT(glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, SKEL_MESH_4BYTES_COUNT * sizeof(float), (void*)(sizeof(float) * 14)));
     REPORT(glEnableVertexAttribArray(4));
 
-    REPORT(glDrawElements(GL_TRIANGLES, carrot_mesh.triangles_count, GL_UNSIGNED_INT, 0));
+    render_carrots();
 
 
 
@@ -811,10 +840,14 @@ render() {
     //glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);
     glUniform3f(static_pbr.base_color, 1.0, 1.0, 1.0);
 
+    // hay bales are drawn with an identity matrix.
+    mat4 identity = GLM_MAT4_IDENTITY_INIT;
+    REPORT(glUniformMatrix4fv(static_pbr.m, 1, false, identity[0]));
+
     REPORT(glActiveTexture(GL_TEXTURE0));
     REPORT(glBindTexture(GL_TEXTURE_2D, hay_tex));
 
     REPORT(glUniform1i(static_pbr.albedo, 0));
 
-    //REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
+    REPORT(glDrawElements(GL_TRIANGLES, level_mesh.triangle_count, GL_UNSIGNED_INT, 0));
 }
