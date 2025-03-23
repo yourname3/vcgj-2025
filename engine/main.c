@@ -13,6 +13,9 @@
 #include "../nuklear_sdl3_gl3.h"
 
 static struct nk_context *nk_ctx;
+struct nk_font *game_font;
+
+	
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -148,6 +151,7 @@ main_loop(void) {
     int width, height;
  
 	SDL_GetWindowSize(window, &width, &height);
+    nk_style_set_font(nk_ctx, &game_font->handle);
     ui(nk_ctx, width, height);
     nk_sdl_render(NK_ANTI_ALIASING_ON, 512 * 1024, 128 * 1024);
     SDL_GL_SwapWindow(window);
@@ -216,6 +220,7 @@ main(int argc, char **argv) {
     nk_ctx = nk_sdl_init(window);
     struct nk_font_atlas *atlas;
     nk_sdl_font_stash_begin(&atlas);
+    game_font = nk_font_atlas_add_from_file(atlas, "font-special-elite/SpecialElite.ttf", 64, 0);
     nk_sdl_font_stash_end();
 
     const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
