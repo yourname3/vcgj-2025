@@ -1,6 +1,6 @@
 #define NK_IMPLEMENTATION
 #define NK_SDL_GL3_IMPLEMENTATION
-
+#define NK_SDL_GLES2_IMPLEMENTATION
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_DEFAULT_ALLOCATOR
@@ -14,4 +14,8 @@
 
 #include "Nuklear/nuklear.h"
 
-#include "nuklear_sdl3_gl3.h"
+#ifdef __EMSCRIPTEN__
+    #include "nuklear_sdl3_gles2.h"
+#else
+    #include "nuklear_sdl3_gl3.h"
+#endif

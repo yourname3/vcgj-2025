@@ -1,6 +1,7 @@
 SRCS=\
 	script.c \
 	physics.c \
+	nuklear.c \
 	engine/main.c \
 	engine/model.c \
 	engine/shader.c \
@@ -33,6 +34,15 @@ CFLAGS=-Wall -g
 
 GAMENAME=bens-bales
 
+ASSETS=\
+	font-special-elite/SpecialElite.ttf \
+	sounds/boing.wav \
+	sounds/chomp.wav \
+	blender/horse.glb \
+	blender/hay.glb \
+	blender/carrot.glb \
+	sounds/music.ogg
+
 all: win shader2c
 
 # all:
@@ -53,7 +63,13 @@ obj/tool/%.o: %.c | $(addprefix obj/tool/,$(dir $(TOOL_SHADER2C)))
 	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2
 
 bin/web/$(GAMENAME).html: $(SRCS:%.c=obj/web/%.o) | bin/web/
-	emcc $^ -o $@ -L../SDL/build-emcc/ -lSDL3_mixer -lSDL3 -lassimp -Wl,--gc-sections -L../SDL_mixer/build-web -L../assimp/build-web/lib
+	emcc $^ -o $@ -L../SDL/build-emcc/ -lSDL3_mixer -lSDL3 -lassimp -lzlibstatic -L../assimp/build-web/contrib/zlib -Wl,--gc-sections \
+		-L../SDL_mixer/build-web \
+		-L../assimp/build-web/lib \
+		$(ASSETS:%=--embed-file %) \
+		-sNO_DISABLE_EXCEPTION_CATCHING \
+		-sALLOW_MEMORY_GROWTH \
+		--shell-file=shell.html
 
 bin/win/SDL3.dll: ../SDL/build-win/SDL3.dll
 	cp ../SDL/build-win/SDL3.dll bin/win/

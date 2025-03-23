@@ -19,6 +19,10 @@ struct nk_font *game_font;
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+
+EM_JS(int, js_get_window_width, (), { return window.innerWidth; });
+EM_JS(int, js_get_window_height, (), { return window.innerHeight; });
+
 #endif
 
 #ifndef __EMSCRIPTEN__ // this really sh ould be ifdef windows or something
@@ -89,6 +93,14 @@ act_just_pressed(struct action *act) {
 
 void
 main_loop(void) {
+
+#ifdef __EMSCRIPTEN__
+	//int ww = get_canvas_width();
+	int js_width = js_get_window_width();
+	int js_height = js_get_window_height();
+	SDL_SetWindowSize(window, js_width, js_height);
+#endif
+
     SDL_Event event;
     nk_input_begin(nk_ctx);
     while(SDL_PollEvent(&event)) {
