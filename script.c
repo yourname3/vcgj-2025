@@ -503,7 +503,7 @@ struct action act_jump = {
 };
 
 float max_walk_vel = 0.8f;
-float max_jump_vel = 4.8f;
+float max_jump_vel = 0.9f;
 
 void
 physics_player(double dt) {
