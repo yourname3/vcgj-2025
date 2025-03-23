@@ -118,7 +118,7 @@ handle_mesh(struct aiMesh *mesh, struct import_data *id) {
 
         if(mesh->mTextureCoords[0]) {
             vert_data[i3 + 14] = mesh->mTextureCoords[0][i].x;
-            vert_data[i3 + 15] = mesh->mTextureCoords[0][i].x;
+            vert_data[i3 + 15] = mesh->mTextureCoords[0][i].y;
         }
         else {
             vert_data[i3 + 14] = 0;
@@ -381,7 +381,7 @@ handle_texture(struct aiTexture *texture, struct import_data *id) {
 
 void
 load_model(const char *path, struct import_data *id) {
-    const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_PopulateArmatureData);
+    const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_PopulateArmatureData | aiProcess_FlipUVs);
     mapping_count = 0;
     if(!scene) {
         SDL_Log("failed to import scene: %s\n", aiGetErrorString());

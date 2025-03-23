@@ -616,7 +616,7 @@ render() {
     REPORT(glUseProgram(skel_pbr.self));
     glUniform1f(skel_pbr.metallic, 0.2);
     glUniform1f(skel_pbr.perceptual_roughness, 0.3);
-    glUniform3f(skel_pbr.base_color, 0.5, 0.2, 0.8);
+    glUniform3f(skel_pbr.base_color, 1.0, 1.0, 1.0); // multiplied by texture
 
     REPORT(glActiveTexture(GL_TEXTURE0));
     REPORT(glBindTexture(GL_TEXTURE_2D, player_tex));
