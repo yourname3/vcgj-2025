@@ -27,6 +27,29 @@ struct skm_armature_anim_playback player_jump_playback = {0};
 
 struct skeletal_mesh hay_mesh = {0};
 
+GLuint
+generate_null_texture() {
+    GLuint tex;
+    REPORT(glGenTextures(1, &tex));
+
+    uint8_t data[] = { 255, 255, 255, 255 };
+
+    REPORT(glBindTexture(GL_TEXTURE_2D, tex));
+
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    REPORT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+    REPORT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+    REPORT(glGenerateMipmap(GL_TEXTURE_2D));
+
+    return tex;
+}
+
+GLuint null_texture = 0;
+
 // Notes to self:
 // Uniforms maintain their values per-shader even after we bind a different shader.
 // We only need to set uniforms that actually have changed. (Maybe cache things
@@ -357,6 +380,8 @@ init() {
 
     init_level_gl();
     gen_level_mesh(&map0);
+
+    null_texture = generate_null_texture();
 }
 
 #include <stdlib.h>
@@ -617,7 +642,7 @@ render() {
     glUniform3f(static_pbr.base_color, 246.0/255.0, 247.0/255.0, 146.0/255.0);\
 
     REPORT(glActiveTexture(GL_TEXTURE1));
-    REPORT(glBindTexture(GL_TEXTURE_2D, 0)); // null tex?
+    REPORT(glBindTexture(GL_TEXTURE_2D, null_texture)); // null tex?
 
     REPORT(glUniform1i(static_pbr.albedo, 1));
 
