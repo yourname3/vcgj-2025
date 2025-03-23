@@ -362,6 +362,10 @@ void
 init_player() {
     player.obj.on_floor = false;
     glm_vec2_copy((vec2){ 4, 20 }, player.obj.pos);
+    glm_vec2_copy((vec2){ -1, -1 }, player.obj.top_left);
+    // Ok, this really should probably be top_left = -0.8, but this gives us
+    // what we want for now, so I guess just let it ride...
+    glm_vec2_copy((vec2){ 1, 0.8 }, player.obj.bottom_right);
 
     player.obj.col_normal_count = 0;
 
@@ -395,7 +399,7 @@ physics_player(double dt) {
 
     if(act_just_pressed(&act_jump) && player.obj.on_floor) {
         // jump impulse
-        player.velocity[1] = 18.0f;
+        player.velocity[1] = 22.0f;
     }
 
     const float margin = 1.0 / 65536.0;

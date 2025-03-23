@@ -17,6 +17,8 @@ struct map {
 
 struct phys_obj {
     vec2 pos;
+    vec2 top_left;
+    vec2 bottom_right;
     bool on_floor;
 
     vec2 col_normals[4];

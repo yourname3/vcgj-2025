@@ -44,7 +44,11 @@ map_set(struct map *map, int32_t x, int32_t y, uint8_t value) {
 // we iterate through the map. So 5/6th blocks are just rejected.
 
 uint8_t map0_data[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
     1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
@@ -53,7 +57,7 @@ uint8_t map0_data[] = {
 
 struct map map0 = {
     .width = 21,
-    .height = 5,
+    .height = 9,
 
     .player_x = 5,
     .player_y = 3, // Assuming we flip the coords..?
@@ -65,22 +69,22 @@ struct map *cur_map = &map0;
 
 float
 obj_left(struct phys_obj *obj) {
-    return obj->pos[0] - 1;
+    return obj->pos[0] + obj->top_left[0];
 }
 
 float
 obj_right(struct phys_obj *obj) {
-    return obj->pos[0] + 1;
+    return obj->pos[0] + obj->bottom_right[0];
 }
 
 float
 obj_bottom(struct phys_obj *obj) {
-    return obj->pos[1] - 1;
+    return obj->pos[1] + obj->bottom_right[1];
 }
 
 float
 obj_top(struct phys_obj *obj) {
-    return obj->pos[1] + 1;
+    return obj->pos[1] + obj->top_left[1];
 }
 
 bool
@@ -143,6 +147,12 @@ map_get_overlap_at_point(struct map *map, float x, float y) {
     // Should be right?
     result.owned.pos[0] = (float)cell_x * 2.0;
     result.owned.pos[1] = (float)cell_y * 2.0;
+    
+    result.owned.top_left[0] = -1;
+    result.owned.top_left[1] = -1;
+
+    result.owned.bottom_right[0] = 1;
+    result.owned.bottom_right[1] = 1;
 
     return result;
 }
