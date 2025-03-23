@@ -132,7 +132,5 @@ void main() {
         v_pos
     );
 
-    //gl_FragColor = vec4(clamp(sum, 0.0, 1.0), 1.0);
-
-    gl_FragColor = vec4(texture2D(u_albedo, vec2(0.0)).xyz, 1.0);
+    gl_FragColor = vec4(clamp(sum, 0.0, 1.0), 1.0);
 }

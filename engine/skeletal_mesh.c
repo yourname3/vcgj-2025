@@ -84,7 +84,7 @@ skm_gl_draw(struct skeletal_mesh *skm) {
 
     REPORT(glUseProgram(skm->shader));
 
-    REPORT(glActiveTexture(GL_TEXTURE0));
+    REPORT(glActiveTexture(GL_TEXTURE1));
     REPORT(glBindTexture(GL_TEXTURE_2D, skm->bone_tform_tex));
 
     REPORT(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skm->element_buf));
