@@ -721,11 +721,39 @@ apply_playbacks() {
 }
 
 void
+eat_carrot() {
+    // TODO: Increase player max speed?
+}
+
+void
 tick_carrots(double dt) {
     for(size_t i = 0; i < carrot_count; ++i) {
         carrots[i].rotation += dt * 3.0;
         if(carrots[i].rotation > 6.28) {
             carrots[i].rotation -= 6.28;
+        }
+
+        if(carrots[i].eaten) {
+            // If we were eaten, scale down and go towards the player.
+            if(carrots[i].scale > 0.0) {
+                step(&carrots[i].scale, 0.0, dt * 2.0);
+
+                vec2 dif;
+                glm_vec2_sub(player.obj.pos, carrots[i].position, dif);
+                glm_vec2_scale(dif, 0.2 * dt, dif);
+                glm_vec2_add(dif, carrots[i].position, carrots[i].position);
+            }
+        }
+        else {
+            // Otherwise, check if we're near the player and set eaten if
+            // so.
+            vec2 dif;
+            glm_vec2_sub(player.obj.pos, carrots[i].position, dif);
+            if(glm_vec2_norm2(dif) < 0.8 * 0.8) {
+                //SDL_Log("eat da carrot");
+                carrots[i].eaten = true;
+                eat_carrot();
+            }
         }
     }
 }
@@ -787,8 +815,9 @@ tick(double dt) {
 void
 render_carrots() {
     for(size_t i = 0; i < carrot_count; ++i) {
-        mat4 tform = GLM_MAT4_IDENTITY_INIT;
+        mat4 tform;
 
+        glm_scale_make(tform, (vec3){ carrots[i].scale, carrots[i].scale, carrots[i].scale });
         glm_rotated(tform, carrots[i].rotation, (vec3){ 0, 1, 0 });
         glm_translated(tform, (vec3){ carrots[i].position[0], carrots[i].position[1], 0.0 });
 
