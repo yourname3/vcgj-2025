@@ -539,7 +539,7 @@ physics_player(double dt) {
     float max_vel = max_walk_vel;
     if(!player.obj.on_floor) {
         // move fast in midair
-        max_vel = 4.8f;
+        max_vel = max_jump_vel;
     }
 
     float target_vel = max_vel * h_vel;
@@ -767,8 +767,8 @@ eat_carrot() {
     // TODO: Increase player max speed?
     Mix_PlayChannel(-1, sound_chomp, 0);
 
-    max_walk_vel += 0.1f;
-    max_jump_vel += 0.2f;
+    max_walk_vel += 0.2f;
+    max_jump_vel += 0.3f;
 
     got_carrot_count += 1;
 
