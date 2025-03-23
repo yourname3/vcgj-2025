@@ -449,7 +449,7 @@ physics_player(double dt) {
         h_vel = 1;
     }
 
-    player.velocity[0] = h_vel * 12.0f;
+    player.velocity[0] = h_vel * 4.0f;
 
     if(act_just_pressed(&act_jump) && player.obj.on_floor) {
         // jump impulse
@@ -597,15 +597,24 @@ tick(double dt) {
     const float anim_start_seek = 0.0;
     const float anim_boundary = anim_start_seek + anim_loop_length;
 
-    skm_arm_playback_step(&player_walk_playback, dt);
+
+    const double thing = 1.158176;
+    double anim_step = 1.0 * dt;
+    if(anim_cur == &player_walk_playback) {
+        anim_step = (fabs(player.velocity[0]) / thing) * dt;
+    }
+
+    
+
+    skm_arm_playback_step(&player_walk_playback, anim_step);
     if(player_walk_playback.time >= anim_boundary) {
         skm_arm_playback_seek(&player_walk_playback, player_walk_playback.time - anim_loop_length);
     }
-    skm_arm_playback_step(&player_idle_playback, dt);
+    skm_arm_playback_step(&player_idle_playback, anim_step);
     if(player_idle_playback.time >= anim_boundary) {
         skm_arm_playback_seek(&player_idle_playback, player_idle_playback.time - anim_loop_length);
     }
-    skm_arm_playback_step(&player_jump_playback, dt);
+    skm_arm_playback_step(&player_jump_playback, anim_step);
     if(player_jump_playback.time >= anim_boundary) {
         skm_arm_playback_seek(&player_jump_playback, player_jump_playback.time - anim_loop_length);
     }
