@@ -49,7 +49,7 @@ all: win shader2c
 # 	@echo "Please specify web or win"
 
 win: bin/win/$(GAMENAME).exe
-web: bin/web/$(GAMENAME).html
+web: bin/web/index.html
 
 shader2c: bin/shader2c.exe
 
@@ -62,7 +62,7 @@ obj/shader.c: $(SHADERS) bin/shader2c.exe | obj/
 obj/tool/%.o: %.c | $(addprefix obj/tool/,$(dir $(TOOL_SHADER2C)))
 	gcc -MMD $(CFLAGS) -c $< -o $@ -I../SDL/include -I../assimp/include -I../assimp/build-win/include -Iglad/include -O2
 
-bin/web/$(GAMENAME).html: $(SRCS:%.c=obj/web/%.o) | bin/web/
+bin/web/index.html: $(SRCS:%.c=obj/web/%.o) | bin/web/
 	emcc $^ -o $@ -L../SDL/build-emcc/ -lSDL3_mixer -lSDL3 -lassimp -lzlibstatic -L../assimp/build-web/contrib/zlib -Wl,--gc-sections \
 		-L../SDL_mixer/build-web \
 		-L../assimp/build-web/lib \

@@ -25,23 +25,22 @@
 				width: 100%;
 				height: 100%;
 				z-index: 10;
-				background-color: #b5a3dd;/* #9784c1; */
+				background-color: #000;/* #9784c1; */
 				position: absolute;
+                display: flex;
+                justify-content: center;
 			}
 			
-			.loading-icon {
-				width: 256px;
-				height: 256px;
-				overflow: auto;
-				margin: auto;
-				position: absolute;
-				top: 0; left: 0; bottom: 0; right: 0;
+			.loading-text {
+                display: flex;
+                align-items: center;
+                color: #eee;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="loading-tmp">
-			<img class="loading-icon" src="loading_icon.svg"></img>
+			<p class="loading-text">loading...</p>
 		</div>
 	<div class="container" id="container">
 	<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
