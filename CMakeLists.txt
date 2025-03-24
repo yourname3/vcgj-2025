@@ -15,7 +15,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     SDL3_mixer
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
-    GIT_TAG        171eb2d420d5643e4ee11514a06e04a41a463bbd
+    GIT_TAG        cadfafb61e03fc38ce8aac849de4b892f880bb24
 )
 
 FetchContent_Declare(
@@ -24,44 +24,56 @@ FetchContent_Declare(
     GIT_TAG        c35200e38ea8f058812b83de2ef32c6093b0ece2
 )
 
+# --- Configure our FetchContent dependencies ---
+# We're using INTERNAL for all these options as in theory we don't want the user
+# of our game build system to modify them?
+
 # Build SDL as static library. That's what we're going to want for game
 # distribution (if we ever figure out how to pack the assets).
-set(SDL_STATIC   ON  CACHE INTERNAL)
-set(SDL_SHARED   OFF CACHE INTERNAL)
+set(SDL_STATIC   ON  CACHE INTERNAL "")
+set(SDL_SHARED   OFF CACHE INTERNAL "")
 
 # Subsystems we definitely don't need
-set(SDL_GPU      OFF CACHE INTERNAL)
-set(SDL_RENDER   OFF CACHE INTERNAL)
+set(SDL_GPU      OFF CACHE INTERNAL "")
+set(SDL_RENDER   OFF CACHE INTERNAL "")
 # Subsystems that we don't need for this game
-set(SDL_CAMERA   OFF CACHE INTERNAL)
-set(SDL_JOYSTICK OFF CACHE INTERNAL)
-set(SDL_HAPTIC   OFF CACHE INTERNAL)
-set(SDL_POWER    OFF CACHE INTERNAL)
-set(SDL_SENSOR   OFF CACHE INTERNAL)
-set(SDL_DIALOG   OFF CACHE INTERNAL)
+set(SDL_CAMERA   OFF CACHE INTERNAL "")
+set(SDL_JOYSTICK OFF CACHE INTERNAL "")
+set(SDL_HAPTIC   OFF CACHE INTERNAL "")
+set(SDL_POWER    OFF CACHE INTERNAL "")
+set(SDL_SENSOR   OFF CACHE INTERNAL "")
+set(SDL_DIALOG   OFF CACHE INTERNAL "")
 
 # Don't build shared libraries for SDL3_mixer
 # (and I guess for our project too)
-set(BUILD_SHARED_LIBS OFF CACHE INTERNAL)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
 
 # Setup desired audio formats
-set(SDLMIXER_FLAC    OFF CACHE INTERNAL)
-set(SDLMIXER_GME     OFF CACHE INTERNAL)
-set(SDLMIXER_MIDI    OFF CACHE INTERNAL)
-set(SDLMIXER_MOD     OFF CACHE INTERNAL)
-set(SDLMIXER_MP3     OFF CACHE INTERNAL)
-set(SDLMIXER_OPUS    OFF CACHE INTERNAL)
+set(SDLMIXER_FLAC    OFF CACHE INTERNAL "")
+set(SDLMIXER_GME     OFF CACHE INTERNAL "")
+set(SDLMIXER_MIDI    OFF CACHE INTERNAL "")
+set(SDLMIXER_MOD     OFF CACHE INTERNAL "")
+set(SDLMIXER_MP3     OFF CACHE INTERNAL "")
+set(SDLMIXER_OPUS    OFF CACHE INTERNAL "")
 # Use stb vorbis, I guess
-set(SDLMIXER_VORBIS  STB CACHE INTERNAL)
-set(SDLMIXER_WAVE    ON  CACHE INTERNAL)
-set(SDLMIXER_WAVPACK OFF CACHE INTERNAL)
+set(SDLMIXER_VORBIS  STB CACHE INTERNAL "")
+set(SDLMIXER_WAVE    ON  CACHE INTERNAL "")
+set(SDLMIXER_WAVPACK OFF CACHE INTERNAL "")
 
 # Assimp options
 # TODO: Figure out a way to make it only build the gltf importer?
-set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL)
+set(ASSIMP_BUILD_TESTS        OFF CACHE INTERNAL "")
 
 # Have assimp build own zlib
-set(ASSIMP_BUILD_ZLIB  ON CACHE INTERNAL)
+set(ASSIMP_BUILD_ZLIB         ON CACHE INTERNAL "")
+
+# We can't have this enabled or assimp won't build.
+set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE INTERNAL "")
+
+# Only import GLTF files. No others are needed.
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE INTERNAL "")
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE INTERNAL "")
+set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE INTERNAL "")
 
 FetchContent_MakeAvailable(SDL3 SDL3_mixer assimp)
 
