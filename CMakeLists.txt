@@ -117,3 +117,7 @@ target_link_libraries(bens-bales PRIVATE SDL3::SDL3-static)
 target_link_libraries(bens-bales PRIVATE SDL3_mixer::SDL3_mixer)
 target_link_libraries(bens-bales PRIVATE assimp::assimp)
 
+if(EMSCRIPTEN)
+    target_compile_options(bens-bales PRIVATE "-fexceptions")
+    target_link_options(shader2c    PRIVATE "-sFORCE_FILESYSTEM=1" "-lnoderawfs.js" "-lnodefs.js")
+endif()

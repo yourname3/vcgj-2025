@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <errno.h>
 
 void
 usage() {
@@ -57,9 +58,14 @@ convert(FILE *input, FILE *out_c, FILE *out_h, char *path) {
             break;
         }
 
+        // Skip carriage returns
+        if(next == '\r') {
+            continue;
+        }
+
         if(next == '\n') {
             // terminate this line and start a new one.
-            fprintf(out_c, "\\n\"\n\"");
+            fprintf(out_c, "\\n\"\"");
             continue;
         }
 
@@ -74,6 +80,21 @@ convert(FILE *input, FILE *out_c, FILE *out_h, char *path) {
     fprintf(out_h, "extern const char *%s_src;\n", mangle);
 }
 
+char*
+filepath(char *input) {
+// Emscripten appears not to like windows-style file paths. So, cut them off
+// if we're on Emscripten.
+#ifdef __EMSCRIPTEN__
+    if(strlen(input) < 2) return input;
+    if((input[0] >= 'A' && input[0] <= 'Z') && input[1] == ':' && input[2] == '/') {
+        return input + 2;
+    }
+    return input;
+#else
+    return input;
+#endif
+}
+
 int
 main(int argc, char **argv) {
     if(argc < 4) {
@@ -83,14 +104,15 @@ main(int argc, char **argv) {
 
     char *out_c_path = argv[argc - 2];
     char *out_h_path = argv[argc - 1];
-    FILE *out_c = fopen(out_c_path, "w");
-    FILE *out_h = fopen(out_h_path, "w");
+    FILE *out_c = fopen(filepath(out_c_path), "w");
     if(!out_c) {
-        printf("error: failed to open output file: %s\n", out_c_path);
+        printf("error: failed to open output file %s: %s\n", out_c_path, strerror(errno));
         return 1;
     }
+
+    FILE *out_h = fopen(filepath(out_h_path), "w");
     if(!out_h) {
-        printf("error: failed to open output file: %s\n", out_c_path);
+        printf("error: failed to open output file: %s: %s\n", out_c_path, strerror(errno));
         return 1;
     }
 
@@ -98,9 +120,9 @@ main(int argc, char **argv) {
     fprintf(out_h, "#define SHADER_SRC_H\n\n");
 
     for(int i = 1; i < argc - 2; ++i) {
-        FILE *in = fopen(argv[i], "r");
+        FILE *in = fopen(filepath(argv[i]), "rb");
         if(!in) {
-            printf("warning: failed to open input file: %s\n", argv[i]);
+            printf("warning: failed to open input file: %s\n", filepath(argv[i]));
             continue;
         }
 
