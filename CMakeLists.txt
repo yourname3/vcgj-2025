@@ -98,7 +98,7 @@ set(SHADERS
 set(ASSETS
     blender/carrot.glb
     blender/hay.glb
-    blender/player.glb
+    blender/horse.glb
     sounds/boing.wav
     sounds/chomp.wav
     sounds/music.ogg
@@ -107,8 +107,8 @@ set(ASSETS
 
 list(TRANSFORM SHADERS PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
 
-list(TRANSFORM ASSETS REPLACE ".+" "--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/\\0@\\0")
-message(STATUS "the assets = ${ASSETS}")
+#list(TRANSFORM ASSETS REPLACE ".+" "--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/\\0@\\0")
+#message(STATUS "the assets = ${ASSETS}")
 #separate_arguments(ASSETS)
 #message(STATUS "the assets = ${ASSETS}")
 
@@ -146,13 +146,13 @@ target_link_libraries(bens-bales PRIVATE cglm)
 if(EMSCRIPTEN)
     target_link_options(shader2c PRIVATE "-sFORCE_FILESYSTEM=1" "-lnoderawfs.js" "-lnodefs.js")
 
-    target_compile_options(bens-bales PRIVATE "-fexceptions")
+    target_compile_options(assimp PRIVATE "-fexceptions")
 
-    # foreach(asset ${ASSETS})
-    #     string(REGEX REPLACE ".+" "${CMAKE_CURRENT_SOURCE_DIR}/\\0@\\0" asset_path ${asset})
-    #     target_link_options(bens-bales PRIVATE "SHELL:--embed-file" ${asset_path})
-    # endforeach()
-    target_link_options(bens-bales PRIVATE "SHELL:${ASSETS}")
+    foreach(asset ${ASSETS})
+         string(REGEX REPLACE ".+" "${CMAKE_CURRENT_SOURCE_DIR}/\\0@\\0" asset_path ${asset})
+         target_link_options(bens-bales PRIVATE "SHELL:--embed-file ${asset_path}")
+    endforeach()
+    #target_link_options(bens-bales PRIVATE "SHELL:${ASSETS}")
     message(STATUS "the assets = ${ASSETS}")
     target_link_options(bens-bales PRIVATE
         "-sNO_DISABLE_EXCEPTION_CATCHING"
