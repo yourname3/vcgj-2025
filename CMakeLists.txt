@@ -135,4 +135,13 @@ if(EMSCRIPTEN)
     target_compile_options(bens-bales PRIVATE "-fexceptions")
     target_link_options(shader2c PRIVATE "-sFORCE_FILESYSTEM=1" "-lnoderawfs.js" "-lnodefs.js")
     target_link_options(bens-bales PRIVATE ${ASSETS})
+    target_link_options(bens-bales PRIVATE
+        "-sNO_DISABLE_EXCEPTION_CATCHING"
+        "-sALLOW_MEMORY_GROWTH"
+        "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/shell.html"
+    )
+
+    set_target_properties(bens-bales
+        PROPERTIES
+            SUFFIX ".html")
 endif()
