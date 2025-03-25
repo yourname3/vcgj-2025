@@ -97,6 +97,9 @@ set(SHADERS
 
 list(TRANSFORM SHADERS PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
 
+list(TRANSFORM ASSETS REPLACE ".+" "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}\\0@\\0")
+separate_arguments(ASSETS)
+
 add_custom_command(
     OUTPUT "${CMAKE_BINARY_DIR}/shader.c" "${CMAKE_BINARY_DIR}/shader.h"
     COMMAND shader2c ${SHADERS} "${CMAKE_BINARY_DIR}/shader.c" "${CMAKE_BINARY_DIR}/shader.h"
@@ -131,4 +134,5 @@ target_link_libraries(bens-bales PRIVATE cglm)
 if(EMSCRIPTEN)
     target_compile_options(bens-bales PRIVATE "-fexceptions")
     target_link_options(shader2c PRIVATE "-sFORCE_FILESYSTEM=1" "-lnoderawfs.js" "-lnodefs.js")
+    target_link_options(bens-bales PRIVATE ${ASSETS})
 endif()
