@@ -24,6 +24,12 @@ FetchContent_Declare(
     GIT_TAG        c35200e38ea8f058812b83de2ef32c6093b0ece2
 )
 
+FetchContent_Declare(
+    cglm
+    GIT_REPOSITORY https://github.com/recp/cglm.git
+    GIT_TAG        144d1e7c29b3b0c6dede7917a0476cc95248559c
+)
+
 # --- Configure our FetchContent dependencies ---
 # We're using INTERNAL for all these options as in theory we don't want the user
 # of our game build system to modify them?
@@ -75,7 +81,11 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE INTERNAL "")
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE INTERNAL "")
 set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE INTERNAL "")
 
-FetchContent_MakeAvailable(SDL3 SDL3_mixer assimp)
+# Cglm options
+set(CGLM_SHARED OFF CACHE INTERNAL "")
+set(CGLM_STATIC ON  CACHE INTERNAL "")
+
+FetchContent_MakeAvailable(SDL3 SDL3_mixer assimp cglm)
 
 add_executable(shader2c tool/shader2c.c)
 
@@ -116,8 +126,9 @@ target_include_directories(bens-bales PRIVATE
 target_link_libraries(bens-bales PRIVATE SDL3::SDL3-static)
 target_link_libraries(bens-bales PRIVATE SDL3_mixer::SDL3_mixer)
 target_link_libraries(bens-bales PRIVATE assimp::assimp)
+target_link_libraries(bens-bales PRIVATE cglm)
 
 if(EMSCRIPTEN)
     target_compile_options(bens-bales PRIVATE "-fexceptions")
-    target_link_options(shader2c    PRIVATE "-sFORCE_FILESYSTEM=1" "-lnoderawfs.js" "-lnodefs.js")
+    target_link_options(shader2c PRIVATE "-sFORCE_FILESYSTEM=1" "-lnoderawfs.js" "-lnodefs.js")
 endif()
