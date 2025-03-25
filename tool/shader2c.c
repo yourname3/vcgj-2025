@@ -65,7 +65,7 @@ convert(FILE *input, FILE *out_c, FILE *out_h, char *path) {
 
         if(next == '\n') {
             // terminate this line and start a new one.
-            fprintf(out_c, "\\n\"\"");
+            fprintf(out_c, "\\n\"\n\"");
             continue;
         }
 
