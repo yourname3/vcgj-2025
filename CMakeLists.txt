@@ -164,3 +164,20 @@ if(EMSCRIPTEN)
         PROPERTIES
             SUFFIX ".html")
 endif()
+
+# get_property(sdl3-library TARGET SDL3::SDL3 PROPERTY ALIASED_TARGET)
+# get_property(sdl3-mixer-library TARGET SDL3_mixer::SDL3_mixer PROPERTY ALIASED_TARGET)
+
+if((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "GNU"))
+    message(STATUS "Enabling ffunction sections and gc sections")
+
+    target_compile_options(bens-bales PRIVATE "-ffunction-sections")
+    # target_compile_options(SDL3 EXPORTED_INTERFACE "-ffunction-sections")
+    # target_compile_options(SDL3_mixer EXPORTED_INTERFACE "-ffunction-sections")
+    # target_compile_options(sdl3-library PRIVATE "-ffunction-sections")
+    # target_compile_options(sdl3-mixer-library PRIVATE "-ffunction-sections")
+    target_compile_options(assimp PRIVATE "-ffunction-sections")
+    target_compile_options(cglm PRIVATE "-ffunction-sections")
+
+    target_link_options(bens-bales PRIVATE "-Wl,--gc-sections")
+endif()
