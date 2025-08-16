@@ -6,7 +6,7 @@
 
 #include "engine/serialize/serialize_skm.h"
 
-#include "obj/shader.h"
+#include "shader.h"
 
 #include "map.h"
 #include "actions.h"

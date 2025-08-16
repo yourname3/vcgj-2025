@@ -18,6 +18,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_opengles2.h>
 
+#include <stddef.h>
 
 NK_API struct nk_context*   nk_sdl_init(SDL_Window *win);
 NK_API void                 nk_sdl_font_stash_begin(struct nk_font_atlas **atlas);

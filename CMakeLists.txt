@@ -132,9 +132,12 @@ add_executable(bens-bales
     engine/stb_image.c
     glad/src/glad.c
     "${CMAKE_BINARY_DIR}/shader.c"
+    "${CMAKE_BINARY_DIR}/shader.h"
 )
 
 target_include_directories(bens-bales PRIVATE
+    # Target the binary dir so that files can find the shader.h
+    "${CMAKE_BINARY_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/glad/include")
 
